@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="696" viewBox="0 0 980 696">
+<rect width="100%" height="100%" fill="#fffdf8"/>
+<text x="490.0" y="36" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="24" fill="#222222">MNIST Test Error</text>
+<line x1="320" y1="646" x2="910" y2="646" stroke="#333333" stroke-width="2"/>
+<line x1="320" y1="70" x2="320" y2="646" stroke="#333333" stroke-width="2"/>
+<rect x="320.0" y="74.7" width="513.0" height="26.7" fill="#2a6f97" rx="6"/>
+<text x="306" y="93.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">Standard MLP</text>
+<text x="843.0" y="93.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">0.0218</text>
+<rect x="320.0" y="110.7" width="442.4" height="26.7" fill="#4d908e" rx="6"/>
+<text x="306" y="129.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">Dropout MLP</text>
+<text x="772.4" y="129.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">0.0188</text>
+<rect x="320.0" y="146.7" width="477.7" height="26.7" fill="#bc4749" rx="6"/>
+<text x="306" y="165.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">Bayes by Backprop</text>
+<text x="807.7" y="165.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">0.0203</text>
+<rect x="320.0" y="182.7" width="421.3" height="26.7" fill="#2a6f97" rx="6"/>
+<text x="306" y="201.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">Bayesian + Dropout</text>
+<text x="751.3" y="201.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">0.0179</text>
+<rect x="320.0" y="218.7" width="513.0" height="26.7" fill="#4d908e" rx="6"/>
+<text x="306" y="237.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">Standard MLP (no trust scaling)</text>
+<text x="843.0" y="237.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">0.0218</text>
+<rect x="320.0" y="254.7" width="442.4" height="26.7" fill="#bc4749" rx="6"/>
+<text x="306" y="273.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">Dropout MLP (no trust scaling)</text>
+<text x="772.4" y="273.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">0.0188</text>
+<rect x="320.0" y="290.7" width="477.7" height="26.7" fill="#2a6f97" rx="6"/>
+<text x="306" y="309.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">Bayes by Backprop (no trust scaling)</text>
+<text x="807.7" y="309.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">0.0203</text>
+<rect x="320.0" y="326.7" width="402.4" height="26.7" fill="#4d908e" rx="6"/>
+<text x="306" y="345.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">Bayesian + Dropout (no trust scaling)</text>
+<text x="732.4" y="345.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">0.0171</text>
+<rect x="320.0" y="362.7" width="470.7" height="26.7" fill="#bc4749" rx="6"/>
+<text x="306" y="381.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">Bayes by Backprop (depth-decay lambda=0.15)</text>
+<text x="800.7" y="381.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">0.0200</text>
+<rect x="320.0" y="398.7" width="456.6" height="26.7" fill="#2a6f97" rx="6"/>
+<text x="306" y="417.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">Bayes by Backprop (grad-norm scaling)</text>
+<text x="786.6" y="417.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">0.0194</text>
+<rect x="320.0" y="434.7" width="487.2" height="26.7" fill="#4d908e" rx="6"/>
+<text x="306" y="453.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">Bayes by Backprop (running-grad-var beta=0.95)</text>
+<text x="817.2" y="453.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">0.0207</text>
+<rect x="320.0" y="470.7" width="456.6" height="26.7" fill="#bc4749" rx="6"/>
+<text x="306" y="489.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">Bayesian + Dropout (depth-decay lambda=0.15)</text>
+<text x="786.6" y="489.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">0.0194</text>
+<rect x="320.0" y="506.7" width="454.2" height="26.7" fill="#2a6f97" rx="6"/>
+<text x="306" y="525.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">Bayesian + Dropout (grad-norm scaling)</text>
+<text x="784.2" y="525.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">0.0193</text>
+<rect x="320.0" y="542.7" width="470.7" height="26.7" fill="#4d908e" rx="6"/>
+<text x="306" y="561.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">Bayesian + Dropout (running-grad-var beta=0.95)</text>
+<text x="800.7" y="561.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">0.0200</text>
+<rect x="320.0" y="578.7" width="437.7" height="26.7" fill="#bc4749" rx="6"/>
+<text x="306" y="597.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">Bayes by Backprop (kalmanLayer beta0.95 Q0.0001 P1.0 R1.0)</text>
+<text x="767.7" y="597.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">0.0186</text>
+<rect x="320.0" y="614.7" width="409.5" height="26.7" fill="#2a6f97" rx="6"/>
+<text x="306" y="633.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">Bayesian + Dropout (kalmanLayer beta0.95 Q0.0001 P1.0 R1.0)</text>
+<text x="739.5" y="633.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">0.0174</text>
+<line x1="320.0" y1="646" x2="320.0" y2="652" stroke="#333333" stroke-width="1"/>
+<text x="320.0" y="670" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#444444">0.000</text>
+<line x1="320.0" y1="70" x2="320.0" y2="646" stroke="#e7e1d7" stroke-width="1"/>
+<line x1="467.5" y1="646" x2="467.5" y2="652" stroke="#333333" stroke-width="1"/>
+<text x="467.5" y="670" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#444444">0.006</text>
+<line x1="467.5" y1="70" x2="467.5" y2="646" stroke="#e7e1d7" stroke-width="1"/>
+<line x1="615.0" y1="646" x2="615.0" y2="652" stroke="#333333" stroke-width="1"/>
+<text x="615.0" y="670" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#444444">0.013</text>
+<line x1="615.0" y1="70" x2="615.0" y2="646" stroke="#e7e1d7" stroke-width="1"/>
+<line x1="762.5" y1="646" x2="762.5" y2="652" stroke="#333333" stroke-width="1"/>
+<text x="762.5" y="670" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#444444">0.019</text>
+<line x1="762.5" y1="70" x2="762.5" y2="646" stroke="#e7e1d7" stroke-width="1"/>
+<line x1="910.0" y1="646" x2="910.0" y2="652" stroke="#333333" stroke-width="1"/>
+<text x="910.0" y="670" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#444444">0.025</text>
+</svg>
