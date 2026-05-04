@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+from contextlib import contextmanager
 from pathlib import Path
 
 import torch
@@ -21,6 +22,12 @@ from update_trust import (
     summarize_trust_logs,
 )
 from utils import ensure_dir, get_device, plot_training_curves, set_seed
+
+try:
+    import fcntl
+except ImportError:  # pragma: no cover - non-Unix fallback
+    fcntl = None
+
 
 DEFAULT_CONFIG = {
     "model": "bayesian",
@@ -55,6 +62,19 @@ DEFAULT_CONFIG = {
     "quiet": False,
     "run_tag": "",
 }
+
+
+@contextmanager
+def file_lock(lock_path: Path):
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    with lock_path.open("w", encoding="utf-8") as handle:
+        if fcntl is not None:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            if fcntl is not None:
+                fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
 
 
 def build_model(model_name: str, bayesian_dropout: float, hidden_dim: int, hidden_layers: int) -> nn.Module:
@@ -450,31 +470,32 @@ def main() -> None:
     }
     save_json(metrics_payload, output_dir / f"{run_name}_test_accuracy.json")
 
-    aggregate_metrics_path = output_dir / "test_accuracy.json"
-    if aggregate_metrics_path.exists():
-        with aggregate_metrics_path.open("r", encoding="utf-8") as handle:
-            aggregate_metrics = json.load(handle)
-    else:
-        aggregate_metrics = {}
-    aggregate_metrics[run_name] = metrics_payload
-    save_json(aggregate_metrics, aggregate_metrics_path)
+    with file_lock(output_dir / ".results.lock"):
+        aggregate_metrics_path = output_dir / "test_accuracy.json"
+        if aggregate_metrics_path.exists():
+            with aggregate_metrics_path.open("r", encoding="utf-8") as handle:
+                aggregate_metrics = json.load(handle)
+        else:
+            aggregate_metrics = {}
+        aggregate_metrics[run_name] = metrics_payload
+        save_json(aggregate_metrics, aggregate_metrics_path)
 
-    table_path = output_dir / "accuracy_table.csv"
-    table_rows = []
-    if table_path.exists():
-        import pandas as pd
+        table_path = output_dir / "accuracy_table.csv"
+        table_rows = []
+        if table_path.exists():
+            import pandas as pd
 
-        table_rows = pd.read_csv(table_path).to_dict(orient="records")
-        table_rows = [row for row in table_rows if row["Model"] != run_name]
+            table_rows = pd.read_csv(table_path).to_dict(orient="records")
+            table_rows = [row for row in table_rows if row["Model"] != run_name]
 
-    table_rows.append(
-        {
-            "Model": run_name,
-            "Test Accuracy": best_test_metrics["accuracy"],
-            "Test Error": best_test_metrics["error_rate"],
-        }
-    )
-    save_accuracy_table(table_rows, table_path)
+        table_rows.append(
+            {
+                "Model": run_name,
+                "Test Accuracy": best_test_metrics["accuracy"],
+                "Test Error": best_test_metrics["error_rate"],
+            }
+        )
+        save_accuracy_table(table_rows, table_path)
 
     checkpoint_dir = ensure_dir(output_dir / "checkpoints")
     torch.save(
