@@ -28,7 +28,7 @@ DIAG_MODES = ["tensor", "scalar"]
 # needing a long command line; CLI arguments still override them.
 DEFAULT_MODEL = "mlp"
 DEFAULT_METHOD = "baseline"
-DEFAULT_RUN_ALL = False
+DEFAULT_RUN_ALL = True
 DEFAULT_OPTIMIZER = "sgd"
 DEFAULT_EPOCHS = 10
 DEFAULT_BATCH_SIZE = 128
