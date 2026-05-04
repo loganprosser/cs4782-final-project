@@ -44,7 +44,9 @@ echo "  seeds: ${SEEDS[*]}"
 echo "  epochs: ${EPOCHS}"
 echo "  run outputs: ${RUNS_DIR}"
 echo "  reports: ${REPORTS_DIR}"
-echo "  total runs: $((${#MODELS[@]} * ${#TRUST_MODES[@]} * ${#BATCH_SIZES[@]} * ${#SEEDS[@]}))"
+TOTAL_RUNS=$((${#MODELS[@]} * ${#TRUST_MODES[@]} * ${#BATCH_SIZES[@]} * ${#SEEDS[@]}))
+COMPLETED_RUNS=0
+echo "  total runs: ${TOTAL_RUNS}"
 
 download_args=()
 if [ "${NO_DOWNLOAD}" = "1" ]; then
@@ -75,6 +77,9 @@ for seed in "${SEEDS[@]}"; do
           --device "${DEVICE}" \
           --run-name "${run_name}" \
           "${download_args[@]}"
+        COMPLETED_RUNS=$((COMPLETED_RUNS + 1))
+        percent=$((COMPLETED_RUNS * 100 / TOTAL_RUNS))
+        printf 'Progress: %d/%d runs complete (%d%%)\n' "${COMPLETED_RUNS}" "${TOTAL_RUNS}" "${percent}"
       done
     done
   done
