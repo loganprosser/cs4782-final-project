@@ -114,6 +114,14 @@ def plot_all(metrics_csv: Path, summary_csv: Path, output_dir: Path) -> None:
     summary = pd.read_csv(summary_csv)
 
     _plot_epoch_metric(df, "test_accuracy", "test accuracy", "Test accuracy vs epoch", output_dir / "test_accuracy_vs_epoch.png")
+    if "val_accuracy" in df.columns and df["val_accuracy"].notna().any():
+        _plot_epoch_metric(
+            df,
+            "val_accuracy",
+            "validation accuracy",
+            "Validation accuracy vs epoch",
+            output_dir / "validation_accuracy_vs_epoch.png",
+        )
     _plot_epoch_metric(df, "test_loss", "test loss", "Test loss vs epoch", output_dir / "test_loss_vs_epoch.png")
     _plot_epoch_metric(df, "train_loss", "train loss", "Train loss vs epoch", output_dir / "train_loss_vs_epoch.png")
     _plot_epoch_metric(
@@ -139,7 +147,15 @@ def plot_all(metrics_csv: Path, summary_csv: Path, output_dir: Path) -> None:
     )
     _plot_raw_vs_filtered(df, output_dir / "raw_vs_filtered_grad_norm.png")
     _plot_summary_bar(summary, "final_test_acc", "final test accuracy", "Final test accuracy", output_dir / "final_test_accuracy_bar.png")
-    _plot_summary_bar(summary, "best_test_acc", "best test accuracy", "Best test accuracy", output_dir / "best_test_accuracy_bar.png")
+    if "best_val_acc" in summary.columns:
+        _plot_summary_bar(summary, "best_val_acc", "best validation accuracy", "Best validation accuracy", output_dir / "best_validation_accuracy_bar.png")
+    _plot_summary_bar(
+        summary,
+        "best_test_acc",
+        "test accuracy at best validation epoch",
+        "Test accuracy at best validation epoch",
+        output_dir / "best_test_accuracy_bar.png",
+    )
 
 
 if __name__ == "__main__":

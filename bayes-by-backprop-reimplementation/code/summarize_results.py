@@ -95,6 +95,12 @@ def display_name(model_name: str) -> str:
             trust_display = trust_display.replace(" q", " Q=")
             trust_display = trust_display.replace(" p", " P=")
             trust_display = trust_display.replace(" r", " R=")
+        elif trust_display.startswith("propagateduncertainty beta"):
+            trust_display = trust_display.replace("propagateduncertainty beta", "propagated uncertainty beta=")
+            trust_display = trust_display.replace(" q", " Q=")
+            trust_display = trust_display.replace(" p", " P=")
+            trust_display = trust_display.replace(" r", " R=")
+            trust_display = trust_display.replace(" lambda", " lambda=")
         elif trust_display == "none":
             trust_display = "no trust scaling"
         return f"{base_display} ({trust_display})"

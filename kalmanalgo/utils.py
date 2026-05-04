@@ -9,7 +9,7 @@ from typing import Any
 
 import numpy as np
 import torch
-from torch.utils.data import DataLoader, Subset
+from torch.utils.data import DataLoader, Subset, random_split
 from torchvision import datasets, transforms
 
 
@@ -75,10 +75,11 @@ def build_loaders(
     seed: int,
     train_subset: int = 0,
     test_subset: int = 0,
+    val_split: float = 0.1,
     num_workers: int = 0,
     download: bool = True,
     fake_data: bool = False,
-) -> tuple[DataLoader, DataLoader]:
+) -> tuple[DataLoader, DataLoader, DataLoader]:
     transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
     if fake_data:
         train_dataset = datasets.FakeData(
@@ -101,6 +102,22 @@ def build_loaders(
         train_dataset = make_subset(train_dataset, train_subset, seed)
         test_dataset = make_subset(test_dataset, test_subset, seed + 1)
 
+    if not 0.0 <= val_split < 1.0:
+        raise ValueError("val_split must be in [0.0, 1.0).")
+    val_size = int(round(len(train_dataset) * val_split))
+    if val_split > 0.0:
+        val_size = max(1, val_size)
+    val_size = min(val_size, max(len(train_dataset) - 1, 0))
+    train_size = len(train_dataset) - val_size
+    if val_size > 0:
+        train_dataset, val_dataset = random_split(
+            train_dataset,
+            [train_size, val_size],
+            generator=torch.Generator().manual_seed(seed),
+        )
+    else:
+        val_dataset = Subset(train_dataset, [])
+
     generator = torch.Generator().manual_seed(seed)
     train_loader = DataLoader(
         train_dataset,
@@ -110,8 +127,9 @@ def build_loaders(
         num_workers=num_workers,
         pin_memory=False,
     )
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=False)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=False)
-    return train_loader, test_loader
+    return train_loader, val_loader, test_loader
 
 
 def accuracy(logits: torch.Tensor, targets: torch.Tensor) -> int:

@@ -14,6 +14,7 @@ if str(CODE_DIR) not in sys.path:
 from models import StandardMLP
 from update_trust import (
     apply_kalman_layer_trust,
+    apply_propagated_uncertainty_trust,
     apply_update_trust_scaling,
     build_optimizer,
     get_layer_param_groups,
@@ -170,6 +171,48 @@ class UpdateTrustTests(unittest.TestCase):
             self.assertTrue(math.isfinite(values["K"]))
             self.assertTrue(math.isfinite(values["P"]))
             self.assertTrue(math.isfinite(values["R"]))
+
+    def test_propagated_uncertainty_tracks_depth_from_output(self) -> None:
+        self._backward_once()
+        trust_state: dict[str, dict[str, float]] = {}
+        stats = apply_propagated_uncertainty_trust(self.model, trust_state)
+        self.assertTrue(stats)
+        self.assertTrue(trust_state)
+
+        depths = [values["depth_from_output"] for values in trust_state.values()]
+        self.assertEqual(sorted(depths), list(range(len(depths))))
+
+    def test_propagated_uncertainty_scales_full_layer_gradients(self) -> None:
+        self._backward_once()
+        original_norms = {}
+        for group in get_layer_param_groups(self.model):
+            name = group["name"]
+            total = 0.0
+            for param in group["params"]:
+                if param.grad is not None:
+                    total += float(param.grad.detach().pow(2).sum().item())
+            original_norms[name] = math.sqrt(total)
+
+        trust_state: dict[str, dict[str, float]] = {}
+        apply_propagated_uncertainty_trust(self.model, trust_state)
+
+        for group in get_layer_param_groups(self.model):
+            name = group["name"]
+            total = 0.0
+            for param in group["params"]:
+                if param.grad is not None:
+                    total += float(param.grad.detach().pow(2).sum().item())
+            new_norm = math.sqrt(total)
+            K = trust_state[name]["K"]
+            self.assertAlmostEqual(new_norm, original_norms[name] * K, places=4)
+
+    def test_propagated_uncertainty_values_are_finite(self) -> None:
+        self._backward_once()
+        trust_state: dict[str, dict[str, float]] = {}
+        apply_propagated_uncertainty_trust(self.model, trust_state)
+        for values in trust_state.values():
+            for key in ["K", "P", "R", "R_eff", "downstream_uncertainty"]:
+                self.assertTrue(math.isfinite(values[key]))
 
 
 if __name__ == "__main__":

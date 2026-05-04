@@ -200,7 +200,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--kl-weight", type=float, default=DEFAULT_CONFIG["kl_weight"])
     parser.add_argument("--mc-samples", type=int, default=DEFAULT_CONFIG["mc_samples"])
     parser.add_argument("--bayesian-dropout", type=float, default=DEFAULT_CONFIG["bayesian_dropout"])
-    parser.add_argument("--update-trust-mode", choices=["none", "depth_decay", "grad_norm", "running_grad_var", "kalman_layer"], default=DEFAULT_CONFIG["update_trust_mode"])
+    parser.add_argument("--update-trust-mode", choices=["none", "depth_decay", "grad_norm", "running_grad_var", "kalman_layer", "propagated_uncertainty"], default=DEFAULT_CONFIG["update_trust_mode"])
     parser.add_argument("--depth-decay-lambda", type=float, default=DEFAULT_CONFIG["depth_decay_lambda"])
     parser.add_argument("--grad-trust-eps", type=float, default=DEFAULT_CONFIG["grad_trust_eps"])
     parser.add_argument("--grad-trust-clip-min", type=float, default=DEFAULT_CONFIG["grad_trust_clip_min"])
@@ -366,6 +366,14 @@ def main() -> None:
                 f"max_K={train_metrics['trust_kalman_max_K']:.4f} "
                 f"mean_P={train_metrics.get('trust_kalman_mean_P', 0.0):.4f} "
                 f"mean_R={train_metrics.get('trust_kalman_mean_R', 0.0):.4f}"
+            )
+        if args.log_kalman_trust and "trust_propagated_mean_K" in train_metrics:
+            print(
+                f"  propagated mean_K={train_metrics['trust_propagated_mean_K']:.4f} "
+                f"min_K={train_metrics['trust_propagated_min_K']:.4f} "
+                f"max_K={train_metrics['trust_propagated_max_K']:.4f} "
+                f"mean_P={train_metrics.get('trust_propagated_mean_P', 0.0):.4f} "
+                f"mean_R_eff={train_metrics.get('trust_propagated_mean_R_eff', 0.0):.4f}"
             )
 
     last_model_state = copy.deepcopy(model.state_dict())

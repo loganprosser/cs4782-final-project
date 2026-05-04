@@ -99,7 +99,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--weight-decay", type=float, default=DEFAULT_CONFIG["weight_decay"])
     parser.add_argument("--kl-weight", type=float, default=DEFAULT_CONFIG["kl_weight"])
     parser.add_argument("--mc-samples", type=int, default=DEFAULT_CONFIG["mc_samples"])
-    parser.add_argument("--update-trust-mode", choices=["none", "depth_decay", "grad_norm", "running_grad_var", "kalman_layer"], default=DEFAULT_CONFIG["update_trust_mode"])
+    parser.add_argument("--update-trust-mode", choices=["none", "depth_decay", "grad_norm", "running_grad_var", "kalman_layer", "propagated_uncertainty"], default=DEFAULT_CONFIG["update_trust_mode"])
     parser.add_argument("--depth-decay-lambda", type=float, default=DEFAULT_CONFIG["depth_decay_lambda"])
     parser.add_argument("--grad-trust-eps", type=float, default=DEFAULT_CONFIG["grad_trust_eps"])
     parser.add_argument("--grad-trust-clip-min", type=float, default=DEFAULT_CONFIG["grad_trust_clip_min"])
@@ -242,6 +242,14 @@ def main() -> None:
                         f"max_K={trust_summary.get('kalman_max_K', 0.0):.4f} "
                         f"mean_P={trust_summary.get('kalman_mean_P', 0.0):.4f} "
                         f"mean_R={trust_summary.get('kalman_mean_R', 0.0):.4f}"
+                    )
+                if args.log_kalman_trust and "propagated_mean_K" in trust_summary:
+                    print(
+                        f"  propagated mean_K={trust_summary.get('propagated_mean_K', 0.0):.4f} "
+                        f"min_K={trust_summary.get('propagated_min_K', 0.0):.4f} "
+                        f"max_K={trust_summary.get('propagated_max_K', 0.0):.4f} "
+                        f"mean_P={trust_summary.get('propagated_mean_P', 0.0):.4f} "
+                        f"mean_R_eff={trust_summary.get('propagated_mean_R_eff', 0.0):.4f}"
                     )
 
     with torch.no_grad():

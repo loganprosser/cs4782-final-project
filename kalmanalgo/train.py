@@ -51,6 +51,7 @@ DEFAULT_RUN_NAME = "first_run"
 DEFAULT_USE_TIMESTAMPED_RESULT_DIR = True
 DEFAULT_TRAIN_SUBSET = 0
 DEFAULT_TEST_SUBSET = 0
+DEFAULT_VAL_SPLIT = 0.1
 DEFAULT_NUM_WORKERS = 0
 DEFAULT_NO_DOWNLOAD = False
 DEFAULT_FAKE_DATA = False
@@ -164,14 +165,14 @@ def train_epoch(
 @torch.no_grad()
 def evaluate(
     model: nn.Module,
-    test_loader: torch.utils.data.DataLoader,
+    loader: torch.utils.data.DataLoader,
     device: torch.device,
 ) -> dict[str, float]:
     model.eval()
     total_loss = 0.0
     total_correct = 0
     total_examples = 0
-    for inputs, targets in test_loader:
+    for inputs, targets in loader:
         inputs = inputs.to(device)
         targets = targets.to(device)
         logits = model(inputs)
@@ -191,6 +192,7 @@ def checkpoint_payload(
     optimizer: torch.optim.Optimizer | KalmanGradientTrust,
     args: argparse.Namespace,
     epoch: int,
+    val_accuracy: float,
     test_accuracy: float,
 ) -> dict[str, Any]:
     return {
@@ -198,6 +200,7 @@ def checkpoint_payload(
         "optimizer_state_dict": optimizer.state_dict(),
         "args": vars(args),
         "epoch": epoch,
+        "val_accuracy": val_accuracy,
         "test_accuracy": test_accuracy,
     }
 
@@ -208,6 +211,7 @@ def run_one(
     args: argparse.Namespace,
     device: torch.device,
     train_loader: torch.utils.data.DataLoader,
+    val_loader: torch.utils.data.DataLoader,
     test_loader: torch.utils.data.DataLoader,
     result_dir: Path,
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
@@ -217,13 +221,21 @@ def run_one(
     run_name = f"{model_name}_{method}_seed{args.seed}"
     use_filter = uses_kalman(method)
     metrics_rows: list[dict[str, Any]] = []
-    best_test_acc = float("-inf")
-    best_test_loss = float("inf")
+    best_val_acc = float("-inf")
+    best_val_loss = float("inf")
+    test_acc_at_best_val = float("-inf")
+    test_loss_at_best_val = float("inf")
+    best_test_acc_observed = float("-inf")
+    best_test_loss_observed = float("inf")
     best_epoch = 0
+    has_validation = len(val_loader.dataset) > 0
 
     for epoch in range(1, args.epochs + 1):
         train_metrics, layer_metrics = train_epoch(model, train_loader, optimizer, device, use_filter)
+        val_metrics = evaluate(model, val_loader, device) if has_validation else {"test_loss": 0.0, "test_accuracy": 0.0}
         test_metrics = evaluate(model, test_loader, device)
+        selection_acc = val_metrics["test_accuracy"] if has_validation else test_metrics["test_accuracy"]
+        selection_loss = val_metrics["test_loss"] if has_validation else test_metrics["test_loss"]
         row: dict[str, Any] = {
             "run_name": run_name,
             "model": model_name,
@@ -234,23 +246,34 @@ def run_one(
             "batch_size": args.batch_size,
             "seed": args.seed,
             "generalization_gap": train_metrics["train_accuracy"] - test_metrics["test_accuracy"],
+            "validation_gap": train_metrics["train_accuracy"] - val_metrics["test_accuracy"] if has_validation else "",
             **train_metrics,
-            **test_metrics,
+            "val_loss": val_metrics["test_loss"] if has_validation else "",
+            "val_accuracy": val_metrics["test_accuracy"] if has_validation else "",
+            "test_loss": test_metrics["test_loss"],
+            "test_accuracy": test_metrics["test_accuracy"],
             **flatten_layer_metrics(layer_metrics),
         }
         metrics_rows.append(row)
 
-        if test_metrics["test_accuracy"] > best_test_acc:
-            best_test_acc = test_metrics["test_accuracy"]
-            best_test_loss = test_metrics["test_loss"]
+        if test_metrics["test_accuracy"] > best_test_acc_observed:
+            best_test_acc_observed = test_metrics["test_accuracy"]
+            best_test_loss_observed = test_metrics["test_loss"]
+
+        if selection_acc > best_val_acc:
+            best_val_acc = selection_acc
+            best_val_loss = selection_loss
+            test_acc_at_best_val = test_metrics["test_accuracy"]
+            test_loss_at_best_val = test_metrics["test_loss"]
             best_epoch = epoch
-            checkpoint_path = result_dir / "checkpoints" / f"{run_name}_best.pt"
+            checkpoint_path = result_dir / "checkpoints" / f"{run_name}_best_val.pt"
             ensure_dir(checkpoint_path.parent)
-            torch.save(checkpoint_payload(model, optimizer, args, epoch, best_test_acc), checkpoint_path)
+            torch.save(checkpoint_payload(model, optimizer, args, epoch, best_val_acc, test_metrics["test_accuracy"]), checkpoint_path)
 
         print(
             f"{run_name} epoch {epoch:03d} | "
             f"train_loss={train_metrics['train_loss']:.4f} train_acc={train_metrics['train_accuracy']:.4f} "
+            f"val_loss={val_metrics['test_loss']:.4f} val_acc={val_metrics['test_accuracy']:.4f} "
             f"test_loss={test_metrics['test_loss']:.4f} test_acc={test_metrics['test_accuracy']:.4f}"
         )
 
@@ -260,9 +283,17 @@ def run_one(
         "method": method,
         "model": model_name,
         "final_test_acc": final["test_accuracy"],
-        "best_test_acc": best_test_acc,
+        "best_test_acc": test_acc_at_best_val,
+        "test_acc_at_best_val": test_acc_at_best_val,
+        "best_test_acc_observed": best_test_acc_observed,
+        "final_val_acc": final.get("val_accuracy", ""),
+        "best_val_acc": best_val_acc,
         "final_test_loss": final["test_loss"],
-        "best_test_loss": best_test_loss,
+        "best_test_loss": test_loss_at_best_val,
+        "test_loss_at_best_val": test_loss_at_best_val,
+        "best_test_loss_observed": best_test_loss_observed,
+        "final_val_loss": final.get("val_loss", ""),
+        "best_val_loss": best_val_loss,
         "best_epoch": best_epoch,
         "final_train_acc": final["train_accuracy"],
         "final_train_loss": final["train_loss"],
@@ -282,13 +313,14 @@ def write_report(result_dir: Path, summary_rows: list[dict[str, Any]]) -> None:
         "",
         "## Final Results",
         "",
-        "| model | method | final test acc | best test acc | final test loss | best epoch |",
-        "| --- | --- | ---: | ---: | ---: | ---: |",
+        "| model | method | final test acc | test acc at best val | best val acc | final test loss | best epoch |",
+        "| --- | --- | ---: | ---: | ---: | ---: | ---: |",
     ]
     for row in summary_rows:
         lines.append(
             f"| {row['model']} | {row['method']} | {row['final_test_acc']:.4f} | "
-            f"{row['best_test_acc']:.4f} | {row['final_test_loss']:.4f} | {row['best_epoch']} |"
+            f"{row['test_acc_at_best_val']:.4f} | {row['best_val_acc']:.4f} | "
+            f"{row['final_test_loss']:.4f} | {row['best_epoch']} |"
         )
 
     lines.extend(["", "## Kalman Comparisons", ""])
@@ -298,13 +330,16 @@ def write_report(result_dir: Path, summary_rows: list[dict[str, Any]]) -> None:
         kalman = by_key.get((model, "kalman"))
         dropout_kalman = by_key.get((model, "dropout_kalman"))
         if baseline and kalman:
-            delta = kalman["best_test_acc"] - baseline["best_test_acc"]
-            lines.append(f"- {model}: Kalman vs baseline best accuracy delta: {delta:+.4f}.")
+            delta = kalman["test_acc_at_best_val"] - baseline["test_acc_at_best_val"]
+            lines.append(f"- {model}: Kalman vs baseline test-at-best-validation accuracy delta: {delta:+.4f}.")
         if dropout and dropout_kalman:
-            delta = dropout_kalman["best_test_acc"] - dropout["best_test_acc"]
-            lines.append(f"- {model}: dropout plus Kalman vs dropout best accuracy delta: {delta:+.4f}.")
+            delta = dropout_kalman["test_acc_at_best_val"] - dropout["test_acc_at_best_val"]
+            lines.append(f"- {model}: dropout plus Kalman vs dropout test-at-best-validation accuracy delta: {delta:+.4f}.")
         if baseline and dropout and kalman and dropout_kalman:
-            complement = dropout_kalman["best_test_acc"] - max(dropout["best_test_acc"], kalman["best_test_acc"])
+            complement = dropout_kalman["test_acc_at_best_val"] - max(
+                dropout["test_acc_at_best_val"],
+                kalman["test_acc_at_best_val"],
+            )
             lines.append(f"- {model}: complementarity signal over the better single method: {complement:+.4f}.")
 
     lines.extend(
@@ -354,6 +389,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--train-subset", type=int, default=DEFAULT_TRAIN_SUBSET)
     parser.add_argument("--test-subset", type=int, default=DEFAULT_TEST_SUBSET)
+    parser.add_argument("--val-split", type=float, default=DEFAULT_VAL_SPLIT)
     parser.add_argument("--num-workers", type=int, default=DEFAULT_NUM_WORKERS)
     parser.add_argument("--no-download", action="store_true", default=DEFAULT_NO_DOWNLOAD)
     parser.add_argument("--fake-data", action="store_true", default=DEFAULT_FAKE_DATA, help="Use torchvision FakeData for quick smoke tests.")
@@ -388,17 +424,18 @@ def main() -> None:
     )
 
     for model_name, method in combos:
-        train_loader, test_loader = build_loaders(
+        train_loader, val_loader, test_loader = build_loaders(
             data_dir=data_dir,
             batch_size=args.batch_size,
             seed=args.seed,
             train_subset=args.train_subset,
             test_subset=args.test_subset,
+            val_split=args.val_split,
             num_workers=args.num_workers,
             download=not args.no_download,
             fake_data=args.fake_data,
         )
-        rows, summary = run_one(model_name, method, args, device, train_loader, test_loader, result_dir)
+        rows, summary = run_one(model_name, method, args, device, train_loader, val_loader, test_loader, result_dir)
         all_metrics.extend(rows)
         summaries.append(summary)
         write_csv(result_dir / "metrics" / "metrics.csv", all_metrics)
@@ -417,11 +454,12 @@ def main() -> None:
             print(f"Warning: plot generation failed: {exc}")
 
     print("")
-    print("method, model, final_test_acc, best_test_acc, final_test_loss, best_epoch")
+    print("method, model, final_test_acc, test_acc_at_best_val, best_val_acc, final_test_loss, best_epoch")
     for row in summaries:
         print(
             f"{row['method']}, {row['model']}, {row['final_test_acc']:.4f}, "
-            f"{row['best_test_acc']:.4f}, {row['final_test_loss']:.4f}, {row['best_epoch']}"
+            f"{row['test_acc_at_best_val']:.4f}, {row['best_val_acc']:.4f}, "
+            f"{row['final_test_loss']:.4f}, {row['best_epoch']}"
         )
 
 

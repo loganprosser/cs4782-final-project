@@ -7,7 +7,7 @@ from typing import Any
 import torch
 
 
-TRUST_MODES = {"none", "depth_decay", "grad_norm", "running_grad_var", "kalman_layer"}
+TRUST_MODES = {"none", "depth_decay", "grad_norm", "running_grad_var", "kalman_layer", "propagated_uncertainty"}
 
 
 def get_layer_param_groups(model: torch.nn.Module) -> list[dict[str, object]]:
@@ -155,6 +155,82 @@ def apply_kalman_layer_trust(
     return stats
 
 
+def apply_propagated_uncertainty_trust(
+    model: torch.nn.Module,
+    trust_state: dict[str, dict[str, float]],
+    beta: float = 0.95,
+    process_noise: float = 1e-4,
+    initial_P: float = 1.0,
+    initial_R: float = 1.0,
+    depth_lambda: float = 0.15,
+    propagation_decay: float = 0.5,
+    eps: float = 1e-8,
+    clip_min: float = 0.05,
+    clip_max: float = 1.0,
+) -> dict[str, float]:
+    # Kalman-inspired propagated uncertainty: each layer's full gradient is the
+    # measurement. Earlier layers receive inflated measurement noise because
+    # their gradients are farther from the supervised output signal.
+    stats: dict[str, float] = {}
+    layer_groups = get_layer_param_groups(model)
+    downstream_uncertainty = 0.0
+
+    for reverse_index, group in enumerate(reversed(layer_groups)):
+        group_name = str(group["name"])
+        params = group["params"]
+        grad_norm = _compute_group_grad_norm(params)
+        if grad_norm == 0.0:
+            continue
+
+        if group_name not in trust_state:
+            initial_K = initial_P / (initial_P + initial_R + eps)
+            trust_state[group_name] = {
+                "P": initial_P,
+                "R": initial_R,
+                "R_eff": initial_R,
+                "gbar": grad_norm,
+                "K": initial_K,
+                "depth_from_output": float(reverse_index),
+                "downstream_uncertainty": 0.0,
+                "step": 0.0,
+            }
+
+        layer_state = trust_state[group_name]
+        P_old = float(layer_state["P"])
+        R_old = float(layer_state["R"])
+        gbar_old = float(layer_state["gbar"])
+
+        gbar_new = beta * gbar_old + (1.0 - beta) * grad_norm
+        R_new = beta * R_old + (1.0 - beta) * ((grad_norm - gbar_new) ** 2)
+        depth_multiplier = math.exp(depth_lambda * reverse_index)
+        R_eff = (R_new * depth_multiplier) + (propagation_decay * downstream_uncertainty)
+        K = P_old / (P_old + R_eff + eps)
+        K = max(clip_min, min(clip_max, K))
+        _scale_group_grads(params, K)
+        P_new = (1.0 - K) * P_old + process_noise
+
+        layer_state["P"] = P_new
+        layer_state["R"] = R_new
+        layer_state["R_eff"] = R_eff
+        layer_state["gbar"] = gbar_new
+        layer_state["K"] = K
+        layer_state["depth_from_output"] = float(reverse_index)
+        layer_state["downstream_uncertainty"] = downstream_uncertainty
+        layer_state["step"] = float(layer_state["step"]) + 1.0
+
+        stats[f"propagated/{group_name}/K"] = K
+        stats[f"propagated/{group_name}/P"] = P_new
+        stats[f"propagated/{group_name}/R"] = R_new
+        stats[f"propagated/{group_name}/R_eff"] = R_eff
+        stats[f"propagated/{group_name}/depth_from_output"] = float(reverse_index)
+        stats[f"propagated/{group_name}/downstream_uncertainty"] = downstream_uncertainty
+        stats[f"propagated/{group_name}/grad_norm"] = grad_norm
+
+        downstream_uncertainty = propagation_decay * downstream_uncertainty + (1.0 - K) * R_eff
+
+    return stats
+
+
 def apply_update_trust_scaling(
     model: torch.nn.Module,
     trust_state: dict[str, Any],
@@ -170,6 +246,8 @@ def apply_update_trust_scaling(
     kalman_eps: float = 1e-8,
     kalman_clip_min: float = 0.05,
     kalman_clip_max: float = 1.0,
+    propagated_depth_lambda: float = 0.15,
+    propagated_decay: float = 0.5,
 ) -> dict[str, float]:
     if mode not in TRUST_MODES:
         raise ValueError(f"Unsupported update_trust_mode: {mode}")
@@ -183,6 +261,20 @@ def apply_update_trust_scaling(
             process_noise=kalman_process_noise,
             initial_P=kalman_initial_P,
             initial_R=kalman_initial_R,
+            eps=kalman_eps,
+            clip_min=kalman_clip_min,
+            clip_max=kalman_clip_max,
+        )
+    if mode == "propagated_uncertainty":
+        return apply_propagated_uncertainty_trust(
+            model=model,
+            trust_state=trust_state,  # type: ignore[arg-type]
+            beta=kalman_beta,
+            process_noise=kalman_process_noise,
+            initial_P=kalman_initial_P,
+            initial_R=kalman_initial_R,
+            depth_lambda=propagated_depth_lambda,
+            propagation_decay=propagated_decay,
             eps=kalman_eps,
             clip_min=kalman_clip_min,
             clip_max=kalman_clip_max,
@@ -220,6 +312,11 @@ def summarize_trust_logs(epoch_trust_logs: list[dict[str, float]]) -> dict[str, 
     kalman_K_values = []
     kalman_P_values = []
     kalman_R_values = []
+    propagated_K_values = []
+    propagated_P_values = []
+    propagated_R_values = []
+    propagated_R_eff_values = []
+    propagated_downstream_values = []
 
     for batch_stats in epoch_trust_logs:
         for key, value in batch_stats.items():
@@ -229,12 +326,22 @@ def summarize_trust_logs(epoch_trust_logs: list[dict[str, float]]) -> dict[str, 
                 grad_norm_values.append(value)
             elif key.endswith("/running_var"):
                 running_var_values.append(value)
-            elif key.endswith("/K"):
+            elif key.startswith("kalman/") and key.endswith("/K"):
                 kalman_K_values.append(value)
-            elif key.endswith("/P"):
+            elif key.startswith("kalman/") and key.endswith("/P"):
                 kalman_P_values.append(value)
-            elif key.endswith("/R"):
+            elif key.startswith("kalman/") and key.endswith("/R"):
                 kalman_R_values.append(value)
+            elif key.startswith("propagated/") and key.endswith("/K"):
+                propagated_K_values.append(value)
+            elif key.startswith("propagated/") and key.endswith("/P"):
+                propagated_P_values.append(value)
+            elif key.startswith("propagated/") and key.endswith("/R"):
+                propagated_R_values.append(value)
+            elif key.startswith("propagated/") and key.endswith("/R_eff"):
+                propagated_R_eff_values.append(value)
+            elif key.startswith("propagated/") and key.endswith("/downstream_uncertainty"):
+                propagated_downstream_values.append(value)
 
     summary: dict[str, float] = {}
     if alpha_values:
@@ -253,6 +360,18 @@ def summarize_trust_logs(epoch_trust_logs: list[dict[str, float]]) -> dict[str, 
         summary["kalman_mean_P"] = sum(kalman_P_values) / len(kalman_P_values)
     if kalman_R_values:
         summary["kalman_mean_R"] = sum(kalman_R_values) / len(kalman_R_values)
+    if propagated_K_values:
+        summary["propagated_mean_K"] = sum(propagated_K_values) / len(propagated_K_values)
+        summary["propagated_min_K"] = min(propagated_K_values)
+        summary["propagated_max_K"] = max(propagated_K_values)
+    if propagated_P_values:
+        summary["propagated_mean_P"] = sum(propagated_P_values) / len(propagated_P_values)
+    if propagated_R_values:
+        summary["propagated_mean_R"] = sum(propagated_R_values) / len(propagated_R_values)
+    if propagated_R_eff_values:
+        summary["propagated_mean_R_eff"] = sum(propagated_R_eff_values) / len(propagated_R_eff_values)
+    if propagated_downstream_values:
+        summary["propagated_mean_downstream_uncertainty"] = sum(propagated_downstream_values) / len(propagated_downstream_values)
     return summary
 
 
@@ -275,4 +394,6 @@ def get_update_trust_suffix(
         return f"trust_gradvar_beta{running_grad_beta}"
     if mode == "kalman_layer":
         return f"trust_kalmanLayer_beta{kalman_beta}_Q{kalman_process_noise}_P{kalman_initial_P}_R{kalman_initial_R}"
+    if mode == "propagated_uncertainty":
+        return f"trust_propagatedUncertainty_beta{kalman_beta}_Q{kalman_process_noise}_P{kalman_initial_P}_R{kalman_initial_R}_lambda{depth_decay_lambda}"
     raise ValueError(f"Unsupported update_trust_mode: {mode}")

@@ -45,6 +45,7 @@ def display_name(run_name: str) -> str:
         base_name, trust_suffix = run_name.split("_trust_", maxsplit=1)
         trust_display = trust_suffix.replace("_", " ")
         trust_display = trust_display.replace("kalmanLayer", "kalman-layer")
+        trust_display = trust_display.replace("propagatedUncertainty", "propagated uncertainty")
         trust_display = trust_display.replace("gradvar", "grad-var")
         trust_display = trust_display.replace("gradnorm", "grad-norm")
         return f"{display_name(base_name)} ({trust_display})"
