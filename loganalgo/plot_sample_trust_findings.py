@@ -195,7 +195,8 @@ def make_dashboard(rows: list[dict[str, str]], deltas: list[dict[str, str | floa
     fig.suptitle(f"Sample Trust Findings: {run_prefix}", fontsize=16)
 
     matrices = [delta_matrix(deltas, model, "best_delta", batch_sizes) for model in models]
-    finite_values = np.concatenate([matrix[np.isfinite(matrix)] for matrix in matrices if np.isfinite(matrix).any()])
+    finite_parts = [matrix[np.isfinite(matrix)] for matrix in matrices if np.isfinite(matrix).any()]
+    finite_values = np.concatenate(finite_parts) if finite_parts else np.array([])
     vmax = max(abs(float(finite_values.min())), abs(float(finite_values.max())), 0.001) if finite_values.size else 0.001
     image = None
     for index, model in enumerate(models):
