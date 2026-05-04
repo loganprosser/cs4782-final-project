@@ -3,6 +3,8 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import textwrap
+from html import escape
 from pathlib import Path
 
 MNIST_PAPER_CONTEXT = (
@@ -108,6 +110,53 @@ def display_name(model_name: str) -> str:
     return model_name.replace("_", " ").title()
 
 
+def compact_plot_label(label: str) -> str:
+    replacements = {
+        "Bayes by Backprop": "BBB",
+        "Bayesian + Dropout": "BBB + Dropout",
+        "no trust scaling": "none",
+        "kalmanLayer beta0.95 Q0.0001 P1.0 R1.0": "Kalman layer",
+        "Kalmanlayer Beta0.95 Q0.0001 P1.0 R1.0": "Kalman layer",
+        "kalman-layer beta=0.95 Q=0.0001 P=1.0 R=1.0": "Kalman layer",
+        "propagatedUncertainty beta0.95 Q0.0001 P1.0 R1.0 lambda0.15": "Propagated uncertainty",
+        "Propagateduncertainty Beta0.95 Q0.0001 P1.0 R1.0 Lambda0.15": "Propagated uncertainty",
+        "propagated uncertainty beta=0.95 Q=0.0001 P=1.0 R=1.0 lambda=0.15": "Propagated uncertainty",
+        "depth-decay lambda=0.15": "Depth decay",
+        "running-grad-var beta=0.95": "Grad var",
+        "grad-norm scaling": "Grad norm",
+    }
+    compact = label
+    for old, new in replacements.items():
+        compact = compact.replace(old, new)
+    return compact
+
+
+def wrap_label(label: str, width: int) -> list[str]:
+    wrapped = textwrap.wrap(compact_plot_label(label), width=width, break_long_words=False, break_on_hyphens=False)
+    return wrapped or [compact_plot_label(label)]
+
+
+def svg_multiline_text(
+    x: float,
+    y: float,
+    lines: list[str],
+    *,
+    anchor: str,
+    font_size: int,
+    fill: str = "#222222",
+    line_height: int | None = None,
+) -> list[str]:
+    line_height = line_height or int(font_size * 1.25)
+    svg_lines = [
+        f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{anchor}" font-family="Helvetica, Arial, sans-serif" font-size="{font_size}" fill="{fill}">'
+    ]
+    for idx, line in enumerate(lines):
+        dy = 0 if idx == 0 else line_height
+        svg_lines.append(f'<tspan x="{x:.1f}" dy="{dy}">{escape(line)}</tspan>')
+    svg_lines.append("</text>")
+    return svg_lines
+
+
 def write_svg_bar_chart(
     labels: list[str],
     values: list[float],
@@ -121,13 +170,14 @@ def write_svg_bar_chart(
     use_horizontal = len(labels) > 6 or max((len(label) for label in labels), default=0) > 18
 
     if use_horizontal:
-        width = 980
-        row_height = 36
-        height = max(440, 120 + row_height * len(labels))
-        left = 320
-        right = 70
+        wrapped_labels = [wrap_label(label, 42) for label in labels]
+        width = 1320
+        row_height = max(50, max(len(lines) for lines in wrapped_labels) * 17 + 22)
+        height = max(500, 130 + row_height * len(labels))
+        left = 500
+        right = 130
         top = 70
-        bottom = 50
+        bottom = 60
         plot_width = width - left - right
         plot_height = height - top - bottom
         x_max = y_max if y_max is not None else max(values) * 1.15
@@ -150,11 +200,16 @@ def write_svg_bar_chart(
             svg_lines.append(
                 f'<rect x="{left:.1f}" y="{bar_top:.1f}" width="{bar_width:.1f}" height="{bar_height:.1f}" fill="{color}" rx="6"/>'
             )
+            label_lines = wrapped_labels[idx]
+            label_y = y - ((len(label_lines) - 1) * 8)
+            svg_lines.extend(svg_multiline_text(left - 18, label_y, label_lines, anchor="end", font_size=13))
+            value_label = value_format.format(value)
+            value_overflows = left + bar_width + 70 > width - 20
+            value_x = left + bar_width - 8 if value_overflows else left + bar_width + 10
+            value_anchor = "end" if value_overflows else "start"
+            value_fill = "#ffffff" if value_overflows and bar_width > 55 else "#222222"
             svg_lines.append(
-                f'<text x="{left - 14}" y="{y + 5:.1f}" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">{label}</text>'
-            )
-            svg_lines.append(
-                f'<text x="{left + bar_width + 10:.1f}" y="{y + 5:.1f}" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">{value_format.format(value)}</text>'
+                f'<text x="{value_x:.1f}" y="{y + 5:.1f}" text-anchor="{value_anchor}" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="{value_fill}">{escape(value_label)}</text>'
             )
 
         for tick_idx in range(5):
@@ -178,7 +233,7 @@ def write_svg_bar_chart(
     left = 80
     right = 40
     top = 70
-    bottom = 90
+    bottom = 125
     plot_width = width - left - right
     plot_height = height - top - bottom
     y_max = y_max if y_max is not None else max(values) * 1.15
@@ -205,8 +260,14 @@ def write_svg_bar_chart(
         svg_lines.append(
             f'<text x="{x:.1f}" y="{bar_top - 10:.1f}" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="16" fill="#222222">{value_format.format(value)}</text>'
         )
-        svg_lines.append(
-            f'<text x="{x:.1f}" y="{top + plot_height + 28}" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#222222">{label}</text>'
+        svg_lines.extend(
+            svg_multiline_text(
+                x,
+                top + plot_height + 26,
+                wrap_label(label, 16),
+                anchor="middle",
+                font_size=13,
+            )
         )
 
     for tick_idx in range(5):
@@ -322,12 +383,13 @@ def write_svg_grouped_bar_chart(
     y_min: float = 0.0,
     y_max: float | None = None,
 ) -> None:
-    width = 920
-    height = 460
+    categories = [compact_plot_label(category) for category in categories]
+    width = 1180
+    height = 540
     left = 90
-    right = 40
+    right = 70
     top = 70
-    bottom = 100
+    bottom = 145
     plot_width = width - left - right
     plot_height = height - top - bottom
     all_values = [float(value) for item in series for value in item["values"]]  # type: ignore[index]
@@ -347,8 +409,14 @@ def write_svg_grouped_bar_chart(
 
     for cat_idx, category in enumerate(categories):
         center_x = left + (cat_idx + 0.5) * category_width
-        svg_lines.append(
-            f'<text x="{center_x:.1f}" y="{top + plot_height + 28}" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">{category}</text>'
+        svg_lines.extend(
+            svg_multiline_text(
+                center_x,
+                top + plot_height + 26,
+                wrap_label(category, 14),
+                anchor="middle",
+                font_size=12,
+            )
         )
         for series_idx, item in enumerate(series):
             value = float(item["values"][cat_idx])  # type: ignore[index]
@@ -400,7 +468,13 @@ def trust_mode_display(mode: str) -> str:
         "gradnorm": "Grad Norm",
         "gradvar_beta0.95": "Grad Var",
         "kalmanLayer_beta0.95_Q1e-4_P1.0_R1.0": "Kalman Layer",
+        "kalmanLayer_beta0.95_Q0.0001_P1.0_R1.0": "Kalman Layer",
+        "propagatedUncertainty_beta0.95_Q0.0001_P1.0_R1.0_lambda0.15": "Propagated Uncertainty",
     }
+    if mode.startswith("kalmanLayer"):
+        return "Kalman Layer"
+    if mode.startswith("propagatedUncertainty"):
+        return "Propagated Uncertainty"
     return mapping.get(mode, mode.replace("_", " ").title())
 
 

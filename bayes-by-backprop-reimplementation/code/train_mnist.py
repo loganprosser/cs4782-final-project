@@ -31,6 +31,8 @@ DEFAULT_CONFIG = {
     "kl_weight": 1.0,
     "mc_samples": 10,
     "bayesian_dropout": 0.1,
+    "hidden_dim": 400,
+    "hidden_layers": 2,
     "update_trust_mode": "none",
     "depth_decay_lambda": 0.15,
     "grad_trust_eps": 1e-8,
@@ -50,16 +52,18 @@ DEFAULT_CONFIG = {
     "data_dir": "data",
     "output_dir": "results/mnist",
     "resume_checkpoint": "",
+    "quiet": False,
+    "run_tag": "",
 }
 
 
-def build_model(model_name: str, bayesian_dropout: float) -> nn.Module:
+def build_model(model_name: str, bayesian_dropout: float, hidden_dim: int, hidden_layers: int) -> nn.Module:
     if model_name == "standard":
-        return StandardMLP()
+        return StandardMLP(hidden_dim=hidden_dim, hidden_layers=hidden_layers)
     if model_name == "dropout":
-        return DropoutMLP()
+        return DropoutMLP(hidden_dim=hidden_dim, hidden_layers=hidden_layers)
     if model_name == "bayesian":
-        return BayesianMLP(dropout=bayesian_dropout)
+        return BayesianMLP(dropout=bayesian_dropout, hidden_dim=hidden_dim, hidden_layers=hidden_layers)
     raise ValueError(f"Unsupported model: {model_name}")
 
 
@@ -73,6 +77,9 @@ def get_run_name(
     kalman_process_noise: float,
     kalman_initial_P: float,
     kalman_initial_R: float,
+    hidden_dim: int = 400,
+    hidden_layers: int = 2,
+    run_tag: str = "",
 ) -> str:
     if model_name == "bayesian" and bayesian_dropout > 0.0:
         base_name = f"bayesian_dropout_{str(bayesian_dropout).replace('.', 'p')}"
@@ -87,7 +94,9 @@ def get_run_name(
         kalman_initial_P=kalman_initial_P,
         kalman_initial_R=kalman_initial_R,
     )
-    return f"{base_name}_{trust_suffix}"
+    arch_suffix = "" if hidden_dim == 400 and hidden_layers == 2 else f"_arch_h{hidden_dim}_l{hidden_layers}"
+    tag_suffix = f"_{run_tag}" if run_tag else ""
+    return f"{base_name}_{trust_suffix}{arch_suffix}{tag_suffix}"
 
 
 def train_epoch(
@@ -200,6 +209,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--kl-weight", type=float, default=DEFAULT_CONFIG["kl_weight"])
     parser.add_argument("--mc-samples", type=int, default=DEFAULT_CONFIG["mc_samples"])
     parser.add_argument("--bayesian-dropout", type=float, default=DEFAULT_CONFIG["bayesian_dropout"])
+    parser.add_argument("--hidden-dim", type=int, default=DEFAULT_CONFIG["hidden_dim"])
+    parser.add_argument("--hidden-layers", type=int, default=DEFAULT_CONFIG["hidden_layers"])
     parser.add_argument("--update-trust-mode", choices=["none", "depth_decay", "grad_norm", "running_grad_var", "kalman_layer", "propagated_uncertainty"], default=DEFAULT_CONFIG["update_trust_mode"])
     parser.add_argument("--depth-decay-lambda", type=float, default=DEFAULT_CONFIG["depth_decay_lambda"])
     parser.add_argument("--grad-trust-eps", type=float, default=DEFAULT_CONFIG["grad_trust_eps"])
@@ -221,6 +232,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--data-dir", type=str, default=DEFAULT_CONFIG["data_dir"])
     parser.add_argument("--output-dir", type=str, default=DEFAULT_CONFIG["output_dir"])
     parser.add_argument("--resume-checkpoint", type=str, default=DEFAULT_CONFIG["resume_checkpoint"])
+    parser.add_argument("--quiet", action="store_true", default=DEFAULT_CONFIG["quiet"])
+    parser.add_argument("--run-tag", type=str, default=DEFAULT_CONFIG["run_tag"])
     return parser.parse_args()
 
 
@@ -239,6 +252,9 @@ def main() -> None:
         args.kalman_process_noise,
         args.kalman_initial_P,
         args.kalman_initial_R,
+        hidden_dim=args.hidden_dim,
+        hidden_layers=args.hidden_layers,
+        run_tag=args.run_tag,
     )
 
     root_dir = Path(__file__).resolve().parents[1]
@@ -261,7 +277,7 @@ def main() -> None:
     test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
 
     trust_state: dict[str, object] = {}
-    model = build_model(args.model, args.bayesian_dropout).to(device)
+    model = build_model(args.model, args.bayesian_dropout, args.hidden_dim, args.hidden_layers).to(device)
     optimizer = build_optimizer(
         model=model,
         base_lr=args.lr,
@@ -346,20 +362,21 @@ def main() -> None:
             best_epoch = epoch
             best_model_state = copy.deepcopy(model.state_dict())
 
-        print(
-            f"Epoch {epoch:03d} | "
-            f"train_loss={train_metrics['loss']:.4f} "
-            f"train_acc={train_metrics['accuracy']:.4f} "
-            f"val_loss={val_metrics['loss']:.4f} "
-            f"val_acc={val_metrics['accuracy']:.4f}"
-        )
-        if args.log_update_trust and "trust_avg_alpha" in train_metrics:
+        if not args.quiet:
+            print(
+                f"Epoch {epoch:03d} | "
+                f"train_loss={train_metrics['loss']:.4f} "
+                f"train_acc={train_metrics['accuracy']:.4f} "
+                f"val_loss={val_metrics['loss']:.4f} "
+                f"val_acc={val_metrics['accuracy']:.4f}"
+            )
+        if not args.quiet and args.log_update_trust and "trust_avg_alpha" in train_metrics:
             print(
                 f"  trust avg_alpha={train_metrics['trust_avg_alpha']:.4f} "
                 f"min_alpha={train_metrics['trust_min_alpha']:.4f} "
                 f"max_alpha={train_metrics['trust_max_alpha']:.4f}"
             )
-        if args.log_kalman_trust and "trust_kalman_mean_K" in train_metrics:
+        if not args.quiet and args.log_kalman_trust and "trust_kalman_mean_K" in train_metrics:
             print(
                 f"  kalman mean_K={train_metrics['trust_kalman_mean_K']:.4f} "
                 f"min_K={train_metrics['trust_kalman_min_K']:.4f} "
@@ -367,7 +384,7 @@ def main() -> None:
                 f"mean_P={train_metrics.get('trust_kalman_mean_P', 0.0):.4f} "
                 f"mean_R={train_metrics.get('trust_kalman_mean_R', 0.0):.4f}"
             )
-        if args.log_kalman_trust and "trust_propagated_mean_K" in train_metrics:
+        if not args.quiet and args.log_kalman_trust and "trust_propagated_mean_K" in train_metrics:
             print(
                 f"  propagated mean_K={train_metrics['trust_propagated_mean_K']:.4f} "
                 f"min_K={train_metrics['trust_propagated_min_K']:.4f} "
@@ -404,6 +421,8 @@ def main() -> None:
         "kl_weight": args.kl_weight,
         "mc_samples": args.mc_samples,
         "bayesian_dropout": args.bayesian_dropout,
+        "hidden_dim": args.hidden_dim,
+        "hidden_layers": args.hidden_layers,
         "update_trust_mode": args.update_trust_mode,
         "depth_decay_lambda": args.depth_decay_lambda,
         "grad_trust_eps": args.grad_trust_eps,
@@ -418,6 +437,7 @@ def main() -> None:
         "kalman_clip_min": args.kalman_clip_min,
         "kalman_clip_max": args.kalman_clip_max,
         "seed": args.seed,
+        "run_tag": args.run_tag,
         "selection_strategy": "best_validation_accuracy_then_loss",
         "best_epoch": best_epoch,
         "best_val_metrics": {
@@ -496,6 +516,14 @@ def main() -> None:
         )
     except Exception as exc:
         print(f"Warning: failed to save training curves for {run_name}: {exc}")
+
+    if args.quiet:
+        print(
+            f"{run_name}: best_epoch={best_epoch} "
+            f"best_val_acc={best_val_accuracy:.4f} "
+            f"test_acc={best_test_metrics['accuracy']:.4f} "
+            f"last_test_acc={last_test_metrics['accuracy']:.4f}"
+        )
 
 
 if __name__ == "__main__":

@@ -10,6 +10,7 @@ import torch
 from torch.nn import functional as F
 
 from models import BayesianMLP, DropoutMLP, StandardMLP
+from summarize_results import compact_plot_label, svg_multiline_text, wrap_label
 from utils import set_seed
 
 
@@ -151,10 +152,10 @@ def benchmark_eval_step(
 
 
 def write_svg_scatter(results: list[dict], output_path: Path) -> None:
-    width = 860
-    height = 460
+    width = 1100
+    height = 520
     left = 90
-    right = 80
+    right = 240
     top = 70
     bottom = 80
     plot_width = width - left - right
@@ -187,28 +188,26 @@ def write_svg_scatter(results: list[dict], output_path: Path) -> None:
         cx = x_coord(item["train_step_ms"])
         cy = y_coord(item["test_accuracy"])
         color = COLORS.get(item["run_name"], "#555555")
-        label = display_name(item["run_name"])
+        label = compact_plot_label(display_name(item["run_name"]))
         svg_lines.append(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="8" fill="{color}"/>')
-        svg_lines.append(
-            f'<text x="{cx + 10:.1f}" y="{cy - 10:.1f}" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">{label}</text>'
-        )
+        svg_lines.extend(svg_multiline_text(cx + 10, cy - 10, wrap_label(label, 18), anchor="start", font_size=12))
 
     svg_lines.append("</svg>")
     output_path.write_text("\n".join(svg_lines), encoding="utf-8")
 
 
 def write_svg_bar(results: list[dict], output_path: Path, key: str, title: str, value_fmt: str) -> None:
-    width = 860
-    height = 440
-    left = 80
-    right = 40
+    width = 1320
+    height = max(540, 150 + 52 * len(results))
+    left = 500
+    right = 120
     top = 70
-    bottom = 100
+    bottom = 60
     plot_width = width - left - right
     plot_height = height - top - bottom
     values = [item[key] for item in results]
     max_value = max(values) * 1.15
-    bar_width = plot_width / max(len(results) * 1.8, 1)
+    bar_height = plot_height / max(len(results) * 1.35, 1)
 
     svg_lines = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
@@ -220,19 +219,17 @@ def write_svg_bar(results: list[dict], output_path: Path, key: str, title: str, 
 
     for idx, item in enumerate(results):
         value = item[key]
-        x = left + (idx + 0.5) * (plot_width / len(results))
-        bar_left = x - bar_width / 2
-        bar_height = (value / max_value) * plot_height if max_value > 0 else 0.0
-        bar_top = top + plot_height - bar_height
+        y = top + (idx + 0.5) * (plot_height / len(results))
+        bar_width = (value / max_value) * plot_width if max_value > 0 else 0.0
+        bar_top = y - bar_height / 2
         color = COLORS.get(item["run_name"], "#555555")
         svg_lines.append(
-            f'<rect x="{bar_left:.1f}" y="{bar_top:.1f}" width="{bar_width:.1f}" height="{bar_height:.1f}" fill="{color}" rx="6"/>'
+            f'<rect x="{left:.1f}" y="{bar_top:.1f}" width="{bar_width:.1f}" height="{bar_height:.1f}" fill="{color}" rx="6"/>'
         )
+        label_lines = wrap_label(display_name(item["run_name"]), 42)
+        svg_lines.extend(svg_multiline_text(left - 18, y - ((len(label_lines) - 1) * 8), label_lines, anchor="end", font_size=13))
         svg_lines.append(
-            f'<text x="{x:.1f}" y="{bar_top - 10:.1f}" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" fill="#222222">{value_fmt.format(value)}</text>'
-        )
-        svg_lines.append(
-            f'<text x="{x:.1f}" y="{top + plot_height + 28}" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">{display_name(item["run_name"])}</text>'
+            f'<text x="{left + bar_width + 10:.1f}" y="{y + 5:.1f}" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#222222">{value_fmt.format(value)}</text>'
         )
 
     svg_lines.append("</svg>")
