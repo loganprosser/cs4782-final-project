@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import itertools
 import math
+import multiprocessing as mp
 import random
 import time
 from dataclasses import dataclass, field
@@ -38,6 +40,12 @@ def set_seed(seed: int) -> None:
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
+
+
+def config_seed(base_seed: int, config: "RunConfig") -> int:
+    payload = repr(config).encode("utf-8")
+    digest = hashlib.sha256(payload).hexdigest()
+    return (base_seed + int(digest[:8], 16)) % (2**31)
 
 
 def get_device(name: str) -> torch.device:
@@ -488,7 +496,9 @@ def train_one_config(
     test_mc_samples: tuple[int, ...],
     record_test_curve: bool,
     quiet: bool,
+    seed: int,
 ) -> RunResult:
+    set_seed(seed)
     model = build_model(config).to(device)
     optimizer = build_optimizer(model, config.learning_rate, optimizer_name)
     parameter_count = sum(parameter.numel() for parameter in model.parameters())
@@ -569,6 +579,47 @@ def train_one_config(
         state_dict=best_state,
         history=history,
     )
+
+
+def worker_train_configs(
+    worker_index: int,
+    device_name: str,
+    configs: list[RunConfig],
+    args: argparse.Namespace,
+) -> list[RunResult]:
+    device = get_device(device_name)
+    train_loader, val_loader, test_loader = build_data_loaders(
+        args.data_dir,
+        args.batch_size,
+        args.seed,
+        args.num_workers,
+    )
+    results = []
+    for index, config in enumerate(configs, start=1):
+        if not args.quiet:
+            print(
+                f"[worker {worker_index} {device}] run {index}/{len(configs)}: "
+                f"{config.display_method}, H={config.hidden_units}, lr={config.learning_rate:g}",
+                flush=True,
+            )
+        results.append(
+            train_one_config(
+                config=config,
+                train_loader=train_loader,
+                val_loader=val_loader,
+                test_loader=test_loader,
+                device=device,
+                epochs=args.epochs,
+                optimizer_name=args.optimizer,
+                kl_scheme=args.kl_weighting,
+                val_mc_samples=args.val_mc_samples,
+                test_mc_samples=TEST_MC_SAMPLES,
+                record_test_curve=config.hidden_units == 1200,
+                quiet=args.quiet,
+                seed=config_seed(args.seed, config),
+            )
+        )
+    return results
 
 
 def make_run_configs(args: argparse.Namespace) -> list[RunConfig]:
@@ -861,6 +912,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--val-mc-samples", type=int, default=1)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--device", default="auto")
+    parser.add_argument(
+        "--worker-devices",
+        nargs="+",
+        default=None,
+        help="Run configs in parallel, one worker per listed device, e.g. cuda:0 cuda:0 cuda:1.",
+    )
     parser.add_argument("--num-workers", type=int, default=0)
     parser.add_argument("--data-dir", type=Path, default=Path("faithful_paper_reproduction/data"))
     parser.add_argument("--output-dir", type=Path, default=Path("faithful_paper_reproduction/reproduction"))
@@ -874,45 +931,71 @@ def main() -> None:
     output_dir = args.output_dir
     output_dir.mkdir(parents=True, exist_ok=True)
     args.data_dir.mkdir(parents=True, exist_ok=True)
-
-    device = get_device(args.device)
-    if not args.quiet:
-        print(f"Using device: {device}", flush=True)
-
-    train_loader, val_loader, test_loader = build_data_loaders(
-        args.data_dir,
-        args.batch_size,
-        args.seed,
-        args.num_workers,
-    )
     configs = make_run_configs(args)
     best_results: dict[tuple[str, int], RunResult] = {}
 
-    for index, config in enumerate(configs, start=1):
-        record_test_curve = config.hidden_units == 1200
+    if args.worker_devices:
         if not args.quiet:
             print(
-                f"\nRun {index}/{len(configs)}: {config.display_method}, H={config.hidden_units}, "
-                f"lr={config.learning_rate:g}",
+                "Using parallel workers: "
+                + ", ".join(f"worker {index}:{device}" for index, device in enumerate(args.worker_devices)),
                 flush=True,
             )
-        result = train_one_config(
-            config=config,
-            train_loader=train_loader,
-            val_loader=val_loader,
-            test_loader=test_loader,
-            device=device,
-            epochs=args.epochs,
-            optimizer_name=args.optimizer,
-            kl_scheme=args.kl_weighting,
-            val_mc_samples=args.val_mc_samples,
-            test_mc_samples=TEST_MC_SAMPLES,
-            record_test_curve=record_test_curve,
-            quiet=args.quiet,
+        chunks = [configs[index :: len(args.worker_devices)] for index in range(len(args.worker_devices))]
+        with mp.get_context("spawn").Pool(processes=len(args.worker_devices)) as pool:
+            worker_outputs = pool.starmap(
+                worker_train_configs,
+                [
+                    (worker_index, device_name, chunk, args)
+                    for worker_index, (device_name, chunk) in enumerate(zip(args.worker_devices, chunks))
+                    if chunk
+                ],
+            )
+        for worker_results in worker_outputs:
+            for result in worker_results:
+                current = best_results.get(result.config.key)
+                if current is None or result.validation_error < current.validation_error:
+                    best_results[result.config.key] = result
+    else:
+        device = get_device(args.device)
+        if not args.quiet:
+            print(f"Using device: {device}", flush=True)
+
+        train_loader, val_loader, test_loader = build_data_loaders(
+            args.data_dir,
+            args.batch_size,
+            args.seed,
+            args.num_workers,
         )
-        current = best_results.get(config.key)
-        if current is None or result.validation_error < current.validation_error:
-            best_results[config.key] = result
+
+        for index, config in enumerate(configs, start=1):
+            record_test_curve = config.hidden_units == 1200
+            if not args.quiet:
+                print(
+                    f"\nRun {index}/{len(configs)}: {config.display_method}, H={config.hidden_units}, "
+                    f"lr={config.learning_rate:g}",
+                    flush=True,
+                )
+            result = train_one_config(
+                config=config,
+                train_loader=train_loader,
+                val_loader=val_loader,
+                test_loader=test_loader,
+                device=device,
+                epochs=args.epochs,
+                optimizer_name=args.optimizer,
+                kl_scheme=args.kl_weighting,
+                val_mc_samples=args.val_mc_samples,
+                test_mc_samples=TEST_MC_SAMPLES,
+                record_test_curve=record_test_curve,
+                quiet=args.quiet,
+                seed=config_seed(args.seed, config),
+            )
+            current = best_results.get(config.key)
+            if current is None or result.validation_error < current.validation_error:
+                best_results[config.key] = result
+
+    artifact_device = get_device(args.device)
 
     write_results_table(best_results, output_dir)
     curve_results = select_curve_results(best_results)
@@ -923,14 +1006,20 @@ def main() -> None:
         for (method, hidden), result in best_results.items()
         if hidden == 1200
     }
-    plot_weight_histograms(best_h1200, output_dir, device)
+    plot_weight_histograms(best_h1200, output_dir, artifact_device)
 
     pruning_source = best_results.get(("Bayes by Backprop (Scale-mixture prior)", 1200)) or best_results.get(
         ("Bayes by Backprop (Gaussian prior)", 1200)
     )
     ran_pruning = pruning_source is not None
     if pruning_source is not None:
-        write_pruning_results(pruning_source, val_loader, test_loader, output_dir, device)
+        _, val_loader, test_loader = build_data_loaders(
+            args.data_dir,
+            args.batch_size,
+            args.seed,
+            args.num_workers,
+        )
+        write_pruning_results(pruning_source, val_loader, test_loader, output_dir, artifact_device)
 
     write_summary(output_dir, args, best_results, ran_pruning)
 
