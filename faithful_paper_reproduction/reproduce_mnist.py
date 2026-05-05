@@ -76,6 +76,7 @@ def build_data_loaders(
     batch_size: int,
     seed: int,
     num_workers: int,
+    pin_memory: bool,
 ) -> tuple[DataLoader, DataLoader, DataLoader]:
     full_train = datasets.MNIST(
         root=data_dir,
@@ -94,27 +95,30 @@ def build_data_loaders(
         [50_000, 10_000],
         generator=torch.Generator().manual_seed(seed),
     )
-    pin_memory = torch.cuda.is_available()
+    loader_kwargs = {
+        "num_workers": num_workers,
+        "pin_memory": pin_memory,
+        "persistent_workers": num_workers > 0,
+    }
+    if num_workers > 0:
+        loader_kwargs["prefetch_factor"] = 4
     train_loader = DataLoader(
         train,
         batch_size=batch_size,
         shuffle=True,
-        num_workers=num_workers,
-        pin_memory=pin_memory,
+        **loader_kwargs,
     )
     val_loader = DataLoader(
         val,
         batch_size=batch_size,
         shuffle=False,
-        num_workers=num_workers,
-        pin_memory=pin_memory,
+        **loader_kwargs,
     )
     test_loader = DataLoader(
         test,
         batch_size=batch_size,
         shuffle=False,
-        num_workers=num_workers,
-        pin_memory=pin_memory,
+        **loader_kwargs,
     )
     return train_loader, val_loader, test_loader
 
@@ -412,8 +416,8 @@ def train_epoch(
     num_batches = len(loader)
 
     for batch_index, (inputs, targets) in enumerate(loader, start=1):
-        inputs = inputs.to(device)
-        targets = targets.to(device)
+        inputs = inputs.to(device, non_blocking=True)
+        targets = targets.to(device, non_blocking=True)
         optimizer.zero_grad()
 
         if config.method == "bbb":
@@ -448,8 +452,8 @@ def evaluate(
     total_examples = 0
 
     for inputs, targets in loader:
-        inputs = inputs.to(device)
-        targets = targets.to(device)
+        inputs = inputs.to(device, non_blocking=True)
+        targets = targets.to(device, non_blocking=True)
 
         if config.method == "bbb":
             if deterministic_bbb:
@@ -593,6 +597,7 @@ def worker_train_configs(
         args.batch_size,
         args.seed,
         args.num_workers,
+        pin_memory=device.type == "cuda",
     )
     results = []
     for index, config in enumerate(configs, start=1):
@@ -966,6 +971,7 @@ def main() -> None:
             args.batch_size,
             args.seed,
             args.num_workers,
+            pin_memory=device.type == "cuda",
         )
 
         for index, config in enumerate(configs, start=1):
@@ -1018,6 +1024,7 @@ def main() -> None:
             args.batch_size,
             args.seed,
             args.num_workers,
+            pin_memory=artifact_device.type == "cuda",
         )
         write_pruning_results(pruning_source, val_loader, test_loader, output_dir, artifact_device)
 
