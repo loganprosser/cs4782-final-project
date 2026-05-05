@@ -9,7 +9,7 @@ from pathlib import Path
 import torch
 from torch import nn
 from torch.nn import functional as F
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import DataLoader, Dataset, random_split
 from torchvision import datasets, transforms
 
 from evaluate import evaluate_classifier, save_accuracy_table, save_json
@@ -56,12 +56,16 @@ DEFAULT_CONFIG = {
     "kalman_clip_max": 1.0,
     "log_kalman_trust": True,
     "seed": 0,
+    "dataset": "mnist",
+    "label_noise": 0.0,
     "data_dir": "data",
     "output_dir": "results/mnist",
     "resume_checkpoint": "",
     "quiet": False,
     "run_tag": "",
 }
+
+DATASETS = ["mnist", "fashion_mnist"]
 
 
 @contextmanager
@@ -85,6 +89,45 @@ def build_model(model_name: str, bayesian_dropout: float, hidden_dim: int, hidde
     if model_name == "bayesian":
         return BayesianMLP(dropout=bayesian_dropout, hidden_dim=hidden_dim, hidden_layers=hidden_layers)
     raise ValueError(f"Unsupported model: {model_name}")
+
+
+class LabelNoiseDataset(Dataset):
+    def __init__(self, dataset: Dataset, noise_rate: float, seed: int, num_classes: int = 10) -> None:
+        if noise_rate < 0.0 or noise_rate >= 1.0:
+            raise ValueError("--label-noise must be in [0, 1).")
+        self.dataset = dataset
+        self.noisy_targets: list[int] = []
+        generator = torch.Generator().manual_seed(seed)
+        for idx in range(len(dataset)):
+            _, target = dataset[idx]
+            target_int = int(target)
+            if torch.rand((), generator=generator).item() < noise_rate:
+                replacement = int(torch.randint(num_classes - 1, (), generator=generator).item())
+                if replacement >= target_int:
+                    replacement += 1
+                self.noisy_targets.append(replacement)
+            else:
+                self.noisy_targets.append(target_int)
+
+    def __len__(self) -> int:
+        return len(self.dataset)
+
+    def __getitem__(self, idx: int):
+        inputs, _ = self.dataset[idx]
+        return inputs, self.noisy_targets[idx]
+
+
+def load_image_dataset(dataset_name: str, data_dir: Path):
+    transform = transforms.ToTensor()
+    if dataset_name == "mnist":
+        dataset_cls = datasets.MNIST
+    elif dataset_name == "fashion_mnist":
+        dataset_cls = datasets.FashionMNIST
+    else:
+        raise ValueError(f"Unsupported dataset: {dataset_name}")
+    full_train = dataset_cls(root=data_dir, train=True, download=True, transform=transform)
+    test_dataset = dataset_cls(root=data_dir, train=False, download=True, transform=transform)
+    return full_train, test_dataset
 
 
 def get_run_name(
@@ -222,6 +265,8 @@ def validate_epoch(
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Train MNIST models for Bayes by Backprop reproduction.")
     parser.add_argument("--model", choices=["standard", "dropout", "bayesian"], default=DEFAULT_CONFIG["model"])
+    parser.add_argument("--dataset", choices=DATASETS, default=DEFAULT_CONFIG["dataset"])
+    parser.add_argument("--label-noise", type=float, default=DEFAULT_CONFIG["label_noise"], help="Fraction of training labels to replace; validation/test stay clean.")
     parser.add_argument("--epochs", type=int, default=DEFAULT_CONFIG["epochs"])
     parser.add_argument("--batch-size", type=int, default=DEFAULT_CONFIG["batch_size"])
     parser.add_argument("--lr", type=float, default=DEFAULT_CONFIG["lr"])
@@ -281,9 +326,7 @@ def main() -> None:
     output_dir = ensure_dir(root_dir / args.output_dir)
     data_dir = ensure_dir(root_dir / args.data_dir)
 
-    transform = transforms.ToTensor()
-    full_train = datasets.MNIST(root=data_dir, train=True, download=True, transform=transform)
-    test_dataset = datasets.MNIST(root=data_dir, train=False, download=True, transform=transform)
+    full_train, test_dataset = load_image_dataset(args.dataset, data_dir)
     train_size = int(0.9 * len(full_train))
     val_size = len(full_train) - train_size
     train_dataset, val_dataset = random_split(
@@ -291,6 +334,8 @@ def main() -> None:
         [train_size, val_size],
         generator=torch.Generator().manual_seed(args.seed),
     )
+    if args.label_noise > 0.0:
+        train_dataset = LabelNoiseDataset(train_dataset, args.label_noise, seed=args.seed + 10_000)
 
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
@@ -457,6 +502,8 @@ def main() -> None:
         "kalman_clip_min": args.kalman_clip_min,
         "kalman_clip_max": args.kalman_clip_max,
         "seed": args.seed,
+        "dataset": args.dataset,
+        "label_noise": args.label_noise,
         "run_tag": args.run_tag,
         "selection_strategy": "best_validation_accuracy_then_loss",
         "best_epoch": best_epoch,

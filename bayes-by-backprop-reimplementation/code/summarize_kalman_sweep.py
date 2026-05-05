@@ -110,15 +110,18 @@ def main() -> None:
         writer.writerows(rows)
 
     plot_rows = rows[:18]
+    accuracy_values = [float(row["mean_accuracy"]) for row in plot_rows]
+    accuracy_y_min = max(0.0, min(accuracy_values) - 0.02)
+    accuracy_y_max = min(1.0, max(accuracy_values) + 0.01)
     write_svg_bar_chart(
         [row["display"] for row in plot_rows],
-        [float(row["mean_accuracy"]) for row in plot_rows],
+        accuracy_values,
         summary_dir / "kalman_sweep_mean_accuracy.svg",
         "Kalman Sweep Mean Test Accuracy",
         "{:.4f}",
         ["#2a6f97", "#4d908e", "#bc4749", "#7a3e9d"],
-        y_min=0.97,
-        y_max=1.0,
+        y_min=accuracy_y_min,
+        y_max=accuracy_y_max,
     )
     write_svg_bar_chart(
         [row["display"] for row in plot_rows],

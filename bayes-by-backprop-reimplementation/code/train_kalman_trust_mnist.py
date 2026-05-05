@@ -17,7 +17,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import torch
 from torch.nn import functional as F
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import DataLoader, Dataset, random_split
 from torchvision import datasets, transforms
 
 from evaluate import save_json
@@ -42,6 +42,8 @@ VARIANTS = [
     "old_kalman_grad_scaling",
 ]
 
+DATASETS = ["mnist", "fashion_mnist"]
+
 
 def build_model(model_name: str, hidden_dim: int, hidden_layers: int) -> torch.nn.Module:
     if model_name == "standard":
@@ -51,6 +53,68 @@ def build_model(model_name: str, hidden_dim: int, hidden_layers: int) -> torch.n
     if model_name == "bayesian":
         return BayesianMLP(hidden_dim=hidden_dim, hidden_layers=hidden_layers)
     raise ValueError(f"Unsupported model: {model_name}")
+
+
+class LabelNoiseDataset(Dataset):
+    def __init__(self, dataset: Dataset, noise_rate: float, seed: int, num_classes: int = 10) -> None:
+        if noise_rate < 0.0 or noise_rate >= 1.0:
+            raise ValueError("--label-noise must be in [0, 1).")
+        self.dataset = dataset
+        self.noisy_targets: list[int] = []
+        generator = torch.Generator().manual_seed(seed)
+        for idx in range(len(dataset)):
+            _, target = dataset[idx]
+            target_int = int(target)
+            if torch.rand((), generator=generator).item() < noise_rate:
+                replacement = int(torch.randint(num_classes - 1, (), generator=generator).item())
+                if replacement >= target_int:
+                    replacement += 1
+                self.noisy_targets.append(replacement)
+            else:
+                self.noisy_targets.append(target_int)
+
+    def __len__(self) -> int:
+        return len(self.dataset)
+
+    def __getitem__(self, idx: int):
+        inputs, _ = self.dataset[idx]
+        return inputs, self.noisy_targets[idx]
+
+
+def load_image_dataset(dataset_name: str, root: Path, data_dir: str):
+    transform = transforms.ToTensor()
+    if dataset_name == "mnist":
+        dataset_cls = datasets.MNIST
+    elif dataset_name == "fashion_mnist":
+        dataset_cls = datasets.FashionMNIST
+    else:
+        raise ValueError(f"Unsupported dataset: {dataset_name}")
+    train_full = dataset_cls(root=root / data_dir, train=True, download=True, transform=transform)
+    test_data = dataset_cls(root=root / data_dir, train=False, download=True, transform=transform)
+    return train_full, test_data
+
+
+def format_noise_tag(label_noise: float) -> str:
+    return f"noise{label_noise:g}".replace(".", "p")
+
+
+def choose_device(requested: str) -> torch.device:
+    if requested == "cpu":
+        return torch.device("cpu")
+    if requested == "cuda":
+        return torch.device("cuda")
+    device = get_device()
+    if device.type != "cuda":
+        return device
+    try:
+        # Some PyTorch builds report CUDA as available but cannot run kernels on
+        # older GPUs such as V100/sm_70. Probe before moving the model.
+        torch.empty(1, device=device) + 1
+        torch.cuda.synchronize()
+        return device
+    except Exception as exc:
+        print(f"Warning: CUDA probe failed ({exc}); falling back to CPU.")
+        return torch.device("cpu")
 
 
 def ece_score(logits: torch.Tensor, targets: torch.Tensor, bins: int = 15) -> float:
@@ -173,6 +237,8 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Train MNIST with AdamW Kalman-trust optimizer variants.")
     parser.add_argument("--optimizer_variant", choices=VARIANTS, default="adamw")
     parser.add_argument("--model", choices=["standard", "dropout", "bayesian"], default="standard")
+    parser.add_argument("--dataset", choices=DATASETS, default="mnist")
+    parser.add_argument("--label-noise", type=float, default=0.0, help="Fraction of train labels to replace; val/test stay clean.")
     parser.add_argument("--epochs", type=int, default=5)
     parser.add_argument("--batch-size", type=int, default=128)
     parser.add_argument("--lr", type=float, default=1e-3)
@@ -182,6 +248,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--data-dir", type=str, default="data")
     parser.add_argument("--output-dir", type=str, default="kalman_trust_results")
+    parser.add_argument("--device", choices=["auto", "cpu", "cuda"], default="auto")
     parser.add_argument("--kalman_beta", type=float, default=0.95)
     parser.add_argument("--kalman_Q", type=float, default=1e-4)
     parser.add_argument("--kalman_P0", type=float, default=1.0)
@@ -201,14 +268,19 @@ def main() -> None:
     diagnostics_dir = ensure_dir(output_dir / "trust_diagnostics")
     curves_dir = ensure_dir(output_dir / "curves")
     plots_dir = ensure_dir(output_dir / "plots")
-    device = get_device()
-    run_name = f"{args.model}_{args.optimizer_variant}_s{args.seed}"
+    device = choose_device(args.device)
+    dataset_tag = ""
+    if args.dataset != "mnist" or args.label_noise > 0.0:
+        noise_tag = f"_{format_noise_tag(args.label_noise)}" if args.label_noise > 0.0 else ""
+        dataset_tag = f"{args.dataset}{noise_tag}_"
+    run_name = f"{dataset_tag}{args.model}_{args.optimizer_variant}_s{args.seed}"
 
-    train_full = datasets.MNIST(root=root_dir / args.data_dir, train=True, download=True, transform=transforms.ToTensor())
-    test_data = datasets.MNIST(root=root_dir / args.data_dir, train=False, download=True, transform=transforms.ToTensor())
+    train_full, test_data = load_image_dataset(args.dataset, root_dir, args.data_dir)
     train_size = int(0.9 * len(train_full))
     val_size = len(train_full) - train_size
     train_data, val_data = random_split(train_full, [train_size, val_size], generator=torch.Generator().manual_seed(args.seed))
+    if args.label_noise > 0.0:
+        train_data = LabelNoiseDataset(train_data, args.label_noise, seed=args.seed + 10_000)
     train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=True)
     val_loader = DataLoader(val_data, batch_size=args.batch_size, shuffle=False)
     test_loader = DataLoader(test_data, batch_size=args.batch_size, shuffle=False)
@@ -318,6 +390,8 @@ def main() -> None:
     summary_row = {
         "run_name": run_name,
         "seed": args.seed,
+        "dataset": args.dataset,
+        "label_noise": args.label_noise,
         "model": args.model,
         "optimizer_variant": args.optimizer_variant,
         "final_train_loss": final["train_loss"],

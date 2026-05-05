@@ -8,9 +8,12 @@ PYTHON_BIN="${ROOT_DIR}/venv/bin/python"
 SEEDS="${SEEDS:-0 1 2}"
 VARIANTS="${VARIANTS:-adamw adamw_clip kalman_lr_controller direction_aware_trust per_unit_filter_trust combined_kalman_trust old_kalman_grad_scaling}"
 MODEL="${MODEL:-standard}"
+DATASET="${DATASET:-mnist}"
+LABEL_NOISE="${LABEL_NOISE:-0.0}"
 EPOCHS="${EPOCHS:-5}"
 BATCH_SIZE="${BATCH_SIZE:-128}"
 OUTPUT_DIR="${OUTPUT_DIR:-kalman_trust_results}"
+DEVICE="${DEVICE:-auto}"
 
 PARALLEL_GPUS="${PARALLEL_GPUS:-false}"
 GPU_IDS="${GPU_IDS:-}"
@@ -37,6 +40,11 @@ if [[ "${PARALLEL_GPUS}" == "true" && -z "${GPU_IDS}" ]]; then
   fi
 fi
 
+if [[ "${DEVICE}" == "cpu" && "${PARALLEL_GPUS}" == "true" ]]; then
+  echo "DEVICE=cpu was requested; disabling PARALLEL_GPUS."
+  PARALLEL_GPUS=false
+fi
+
 if [[ "${PARALLEL_GPUS}" == "true" ]]; then
   read -r -a GPU_LIST <<< "${GPU_IDS}"
   NEXT_GPU_INDEX=0
@@ -51,10 +59,13 @@ run_one() {
     code/train_kalman_trust_mnist.py
     --optimizer_variant "${variant}"
     --model "${MODEL}"
+    --dataset "${DATASET}"
+    --label-noise "${LABEL_NOISE}"
     --epochs "${EPOCHS}"
     --batch-size "${BATCH_SIZE}"
     --seed "${seed}"
     --output-dir "${OUTPUT_DIR}"
+    --device "${DEVICE}"
     --kalman_beta "${KALMAN_BETA}"
     --kalman_Q "${KALMAN_Q}"
     --kalman_P0 "${KALMAN_P0}"
