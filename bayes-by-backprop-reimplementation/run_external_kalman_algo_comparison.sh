@@ -14,6 +14,7 @@ PLOT_DIR="${PLOT_DIR:-final_plots_with_external_kalman}"
 
 PARALLEL_GPUS="${PARALLEL_GPUS:-false}"
 GPU_IDS="${GPU_IDS:-}"
+DEVICE="${DEVICE:-auto}"
 
 if [[ ! -x "${PYTHON_BIN}" ]]; then
   echo "Expected project environment at ${PYTHON_BIN}"
@@ -32,9 +33,16 @@ fi
 
 if [[ "${PARALLEL_GPUS}" == "true" ]]; then
   read -r -a GPU_LIST <<< "${GPU_IDS}"
+  if [[ "${#GPU_LIST[@]}" -eq 0 ]]; then
+    echo "PARALLEL_GPUS=true but GPU_IDS is empty."
+    exit 1
+  fi
   NEXT_GPU_INDEX=0
   PIDS=()
-  echo "Parallel GPU mode enabled on GPU ids: ${GPU_IDS}"
+  MAX_PARALLEL_JOBS="${MAX_PARALLEL_JOBS:-${#GPU_LIST[@]}}"
+  DEVICE="cuda"
+  echo "Parallel GPU mode enabled on GPU slots: ${GPU_IDS}"
+  echo "Max concurrent jobs: ${MAX_PARALLEL_JOBS}"
 fi
 
 train_one() {
@@ -51,27 +59,28 @@ train_one() {
   echo ">>> external kalmanalgo dataset=${dataset} noise=${label_noise} model=${model} h=${hidden_dim}/L${hidden_layers} seed=${seed} diag=${diag_mode}"
   local args=(
     code/train_external_kalman_mnist.py
-    --dataset "${dataset}" \
-    --label-noise "${label_noise}" \
-    --model "${model}" \
-    --bayesian-dropout "${bayesian_dropout}" \
-    --hidden-dim "${hidden_dim}" \
-    --hidden-layers "${hidden_layers}" \
-    --epochs "${EPOCHS}" \
-    --batch-size "${BATCH_SIZE}" \
-    --seed "${seed}" \
-    --diag-mode "${diag_mode}" \
-    --output-dir "${OUTPUT_DIR}" \
+    --dataset "${dataset}"
+    --label-noise "${label_noise}"
+    --model "${model}"
+    --bayesian-dropout "${bayesian_dropout}"
+    --hidden-dim "${hidden_dim}"
+    --hidden-layers "${hidden_layers}"
+    --epochs "${EPOCHS}"
+    --batch-size "${BATCH_SIZE}"
+    --seed "${seed}"
+    --diag-mode "${diag_mode}"
+    --device "${DEVICE}"
+    --output-dir "${OUTPUT_DIR}"
     --quiet
   )
 
   if [[ "${PARALLEL_GPUS}" == "true" ]]; then
     local gpu="${GPU_LIST[${NEXT_GPU_INDEX}]}"
     NEXT_GPU_INDEX=$(( (NEXT_GPU_INDEX + 1) % ${#GPU_LIST[@]} ))
-    echo "    gpu=${gpu}"
+    echo "    CUDA_VISIBLE_DEVICES=${gpu}"
     CUDA_VISIBLE_DEVICES="${gpu}" "${PYTHON_BIN}" "${args[@]}" &
     PIDS+=("$!")
-    if [[ "${#PIDS[@]}" -ge "${#GPU_LIST[@]}" ]]; then
+    if [[ "${#PIDS[@]}" -ge "${MAX_PARALLEL_JOBS}" ]]; then
       wait "${PIDS[0]}"
       PIDS=("${PIDS[@]:1}")
     fi

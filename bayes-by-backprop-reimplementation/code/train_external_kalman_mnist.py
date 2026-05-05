@@ -122,6 +122,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--data-dir", type=str, default="data")
     parser.add_argument("--output-dir", type=str, default="results/external_kalman_algo")
+    parser.add_argument("--device", choices=["auto", "cpu", "cuda", "mps"], default="auto")
     parser.add_argument("--P0", type=float, default=1.0)
     parser.add_argument("--Q", type=float, default=1e-5)
     parser.add_argument("--R-floor", type=float, default=1e-8)
@@ -137,7 +138,18 @@ def main() -> None:
     root_dir = Path(__file__).resolve().parents[1]
     output_dir = ensure_dir(root_dir / args.output_dir)
     data_dir = ensure_dir(root_dir / args.data_dir)
-    device = get_device()
+    if args.device == "auto":
+        device = get_device()
+    elif args.device == "cuda":
+        if not torch.cuda.is_available():
+            raise RuntimeError("--device cuda was requested, but torch.cuda.is_available() is false.")
+        device = torch.device("cuda")
+    elif args.device == "mps":
+        if not torch.backends.mps.is_available():
+            raise RuntimeError("--device mps was requested, but torch.backends.mps.is_available() is false.")
+        device = torch.device("mps")
+    else:
+        device = torch.device("cpu")
 
     full_train, test_dataset = load_image_dataset(args.dataset, data_dir)
     train_size = int(0.9 * len(full_train))
