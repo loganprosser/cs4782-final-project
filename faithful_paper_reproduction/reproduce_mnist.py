@@ -8,6 +8,7 @@ import math
 import multiprocessing as mp
 import random
 import time
+import traceback
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -627,6 +628,21 @@ def worker_train_configs(
     return results
 
 
+def worker_entry(
+    worker_index: int,
+    device_name: str,
+    configs: list[RunConfig],
+    args: argparse.Namespace,
+    queue: mp.Queue,
+) -> None:
+    try:
+        results = worker_train_configs(worker_index, device_name, configs, args)
+        queue.put((worker_index, results, None))
+    except BaseException:
+        queue.put((worker_index, None, traceback.format_exc()))
+        raise
+
+
 def make_run_configs(args: argparse.Namespace) -> list[RunConfig]:
     configs: list[RunConfig] = []
     hidden_units = tuple(args.hidden_units)
@@ -947,15 +963,33 @@ def main() -> None:
                 flush=True,
             )
         chunks = [configs[index :: len(args.worker_devices)] for index in range(len(args.worker_devices))]
-        with mp.get_context("spawn").Pool(processes=len(args.worker_devices)) as pool:
-            worker_outputs = pool.starmap(
-                worker_train_configs,
-                [
-                    (worker_index, device_name, chunk, args)
-                    for worker_index, (device_name, chunk) in enumerate(zip(args.worker_devices, chunks))
-                    if chunk
-                ],
+        context = mp.get_context("spawn")
+        queue = context.Queue()
+        processes = [
+            context.Process(
+                target=worker_entry,
+                args=(worker_index, device_name, chunk, args, queue),
             )
+            for worker_index, (device_name, chunk) in enumerate(zip(args.worker_devices, chunks))
+            if chunk
+        ]
+        for process in processes:
+            process.start()
+
+        worker_outputs = []
+        for _ in processes:
+            worker_index, worker_results, error = queue.get()
+            if error is not None:
+                for process in processes:
+                    process.join(timeout=5)
+                raise RuntimeError(f"Worker {worker_index} failed:\n{error}")
+            worker_outputs.append(worker_results)
+
+        for process in processes:
+            process.join()
+            if process.exitcode != 0:
+                raise RuntimeError(f"Worker process {process.pid} exited with code {process.exitcode}")
+
         for worker_results in worker_outputs:
             for result in worker_results:
                 current = best_results.get(result.config.key)
