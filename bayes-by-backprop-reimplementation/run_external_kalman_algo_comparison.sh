@@ -12,12 +12,30 @@ BATCH_SIZE="${BATCH_SIZE:-128}"
 OUTPUT_DIR="${OUTPUT_DIR:-results/external_kalman_algo}"
 PLOT_DIR="${PLOT_DIR:-final_plots_with_external_kalman}"
 
+PARALLEL_GPUS="${PARALLEL_GPUS:-false}"
+GPU_IDS="${GPU_IDS:-}"
+
 if [[ ! -x "${PYTHON_BIN}" ]]; then
   echo "Expected project environment at ${PYTHON_BIN}"
   exit 1
 fi
 
 cd "${ROOT_DIR}"
+
+if [[ "${PARALLEL_GPUS}" == "true" && -z "${GPU_IDS}" ]]; then
+  if command -v nvidia-smi >/dev/null 2>&1; then
+    GPU_IDS="$(nvidia-smi --query-gpu=index --format=csv,noheader | tr '\n' ' ' | sed 's/[[:space:]]*$//')"
+  else
+    GPU_IDS="0"
+  fi
+fi
+
+if [[ "${PARALLEL_GPUS}" == "true" ]]; then
+  read -r -a GPU_LIST <<< "${GPU_IDS}"
+  NEXT_GPU_INDEX=0
+  PIDS=()
+  echo "Parallel GPU mode enabled on GPU ids: ${GPU_IDS}"
+fi
 
 train_one() {
   local dataset="$1"
@@ -31,7 +49,8 @@ train_one() {
 
   echo
   echo ">>> external kalmanalgo dataset=${dataset} noise=${label_noise} model=${model} h=${hidden_dim}/L${hidden_layers} seed=${seed} diag=${diag_mode}"
-  "${PYTHON_BIN}" code/train_external_kalman_mnist.py \
+  local args=(
+    code/train_external_kalman_mnist.py
     --dataset "${dataset}" \
     --label-noise "${label_noise}" \
     --model "${model}" \
@@ -44,6 +63,32 @@ train_one() {
     --diag-mode "${diag_mode}" \
     --output-dir "${OUTPUT_DIR}" \
     --quiet
+  )
+
+  if [[ "${PARALLEL_GPUS}" == "true" ]]; then
+    local gpu="${GPU_LIST[${NEXT_GPU_INDEX}]}"
+    NEXT_GPU_INDEX=$(( (NEXT_GPU_INDEX + 1) % ${#GPU_LIST[@]} ))
+    echo "    gpu=${gpu}"
+    CUDA_VISIBLE_DEVICES="${gpu}" "${PYTHON_BIN}" "${args[@]}" &
+    PIDS+=("$!")
+    if [[ "${#PIDS[@]}" -ge "${#GPU_LIST[@]}" ]]; then
+      wait "${PIDS[0]}"
+      PIDS=("${PIDS[@]:1}")
+    fi
+  else
+    "${PYTHON_BIN}" "${args[@]}"
+  fi
+}
+
+wait_for_parallel_jobs() {
+  if [[ "${PARALLEL_GPUS}" != "true" ]]; then
+    return
+  fi
+  local pid
+  for pid in "${PIDS[@]}"; do
+    wait "${pid}"
+  done
+  PIDS=()
 }
 
 for seed in ${SEEDS}; do
@@ -54,6 +99,8 @@ for seed in ${SEEDS}; do
     train_one fashion_mnist 0.10 standard 0.0 800 2 "${seed}" "${diag_mode}"
   done
 done
+
+wait_for_parallel_jobs
 
 echo
 echo ">>> regenerate copied final plots with external kalmanalgo rows"

@@ -4,6 +4,7 @@ import argparse
 import copy
 import json
 import sys
+from contextlib import contextmanager
 from pathlib import Path
 
 import torch
@@ -20,6 +21,24 @@ from evaluate import evaluate_classifier, save_json
 from losses import bayesian_classification_loss
 from train_mnist import LabelNoiseDataset, build_model, load_image_dataset
 from utils import ensure_dir, get_device, set_seed
+
+try:
+    import fcntl
+except ImportError:  # pragma: no cover - non-Unix fallback
+    fcntl = None
+
+
+@contextmanager
+def file_lock(lock_path: Path):
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    with lock_path.open("w", encoding="utf-8") as handle:
+        if fcntl is not None:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            if fcntl is not None:
+                fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
 
 
 def run_name(args: argparse.Namespace) -> str:
@@ -241,13 +260,14 @@ def main() -> None:
     save_json(payload, output_dir / f"{name}_test_accuracy.json")
 
     aggregate_path = output_dir / "test_accuracy.json"
-    if aggregate_path.exists():
-        with aggregate_path.open("r", encoding="utf-8") as handle:
-            aggregate = json.load(handle)
-    else:
-        aggregate = {}
-    aggregate[name] = payload
-    save_json(aggregate, aggregate_path)
+    with file_lock(output_dir / ".external_kalman_results.lock"):
+        if aggregate_path.exists():
+            with aggregate_path.open("r", encoding="utf-8") as handle:
+                aggregate = json.load(handle)
+        else:
+            aggregate = {}
+        aggregate[name] = payload
+        save_json(aggregate, aggregate_path)
 
     if args.quiet:
         print(
