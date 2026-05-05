@@ -1,0 +1,5 @@
+method,memory_mb
+standard_mlp,1.8249893188476562
+dropout_mlp,1.8249893188476562
+bayes_by_backprop,3.6499786376953125
+bayes_by_backprop_dropout,3.6499786376953125

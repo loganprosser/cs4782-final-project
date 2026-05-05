@@ -1,0 +1,5 @@
+method,seed,peak_cpu_memory_mb,peak_gpu_memory_allocated_mb,peak_gpu_memory_reserved_mb
+standard_mlp,0,474.265625,,
+dropout_mlp,0,474.265625,,
+bayes_by_backprop,0,474.265625,,
+bayes_by_backprop_dropout,0,474.265625,,
