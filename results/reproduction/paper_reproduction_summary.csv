@@ -1,0 +1,5 @@
+Method,Paper test error,Our test error,Notes
+Vanilla SGD / Standard MLP,1.83%,1.80%,400-unit SGD baseline from Table 1
+Dropout,1.51%,1.54%,400-unit dropout baseline from Table 1
+Bayes by Backprop,1.36%,1.74%,400-unit scale-mixture prior; Gaussian prior was 1.82%
+Bayes by Backprop + Dropout,N/A,1.68%,our extension

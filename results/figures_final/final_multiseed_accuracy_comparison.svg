@@ -1,0 +1,178 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="560" viewBox="0 0 1120 560">
+<rect width="100%" height="100%" fill="#fffdf8"/>
+<text x="560.0" y="34.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="25" font-weight="700" fill="#222222">
+<tspan x="560.0" dy="0.0">Final Multi-Seed Accuracy</tspan>
+</text>
+<text x="560.0" y="58.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#555555">
+<tspan x="560.0" dy="0.0">Mean over 4 seeds with one standard deviation</tspan>
+</text>
+<rect x="18.0" y="78.0" width="1082.0" height="334.4" fill="#f4e4cf" rx="8"/>
+<text x="32.0" y="100.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#6b6258">
+<tspan x="32.0" dy="0.0">h400/L2</tspan>
+</text>
+<rect x="18.0" y="420.4" width="1082.0" height="77.6" fill="#f4efe7" rx="8"/>
+<text x="32.0" y="442.4" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#6b6258">
+<tspan x="32.0" dy="0.0">h800/L2</tspan>
+</text>
+<line x1="270.0" y1="74.0" x2="270.0" y2="502.0" stroke="#d3c5b5" stroke-width="1.4"/>
+<line x1="270.0" y1="502.0" x2="270.0" y2="508.0" stroke="#333333" stroke-width="1.1"/>
+<text x="270.0" y="527.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#444444">
+<tspan x="270.0" dy="0.0">0.9770</tspan>
+</text>
+<line x1="310.0" y1="74.0" x2="310.0" y2="502.0" stroke="#dfd2c1" stroke-width="1" stroke-dasharray="3 5"/>
+<line x1="350.0" y1="74.0" x2="350.0" y2="502.0" stroke="#d3c5b5" stroke-width="1.4"/>
+<line x1="350.0" y1="502.0" x2="350.0" y2="508.0" stroke="#333333" stroke-width="1.1"/>
+<text x="350.0" y="527.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#444444">
+<tspan x="350.0" dy="0.0">0.9779</tspan>
+</text>
+<line x1="390.0" y1="74.0" x2="390.0" y2="502.0" stroke="#dfd2c1" stroke-width="1" stroke-dasharray="3 5"/>
+<line x1="430.0" y1="74.0" x2="430.0" y2="502.0" stroke="#d3c5b5" stroke-width="1.4"/>
+<line x1="430.0" y1="502.0" x2="430.0" y2="508.0" stroke="#333333" stroke-width="1.1"/>
+<text x="430.0" y="527.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#444444">
+<tspan x="430.0" dy="0.0">0.9788</tspan>
+</text>
+<line x1="470.0" y1="74.0" x2="470.0" y2="502.0" stroke="#dfd2c1" stroke-width="1" stroke-dasharray="3 5"/>
+<line x1="510.0" y1="74.0" x2="510.0" y2="502.0" stroke="#d3c5b5" stroke-width="1.4"/>
+<line x1="510.0" y1="502.0" x2="510.0" y2="508.0" stroke="#333333" stroke-width="1.1"/>
+<text x="510.0" y="527.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#444444">
+<tspan x="510.0" dy="0.0">0.9796</tspan>
+</text>
+<line x1="550.0" y1="74.0" x2="550.0" y2="502.0" stroke="#dfd2c1" stroke-width="1" stroke-dasharray="3 5"/>
+<line x1="590.0" y1="74.0" x2="590.0" y2="502.0" stroke="#d3c5b5" stroke-width="1.4"/>
+<line x1="590.0" y1="502.0" x2="590.0" y2="508.0" stroke="#333333" stroke-width="1.1"/>
+<text x="590.0" y="527.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#444444">
+<tspan x="590.0" dy="0.0">0.9805</tspan>
+</text>
+<line x1="630.0" y1="74.0" x2="630.0" y2="502.0" stroke="#dfd2c1" stroke-width="1" stroke-dasharray="3 5"/>
+<line x1="670.0" y1="74.0" x2="670.0" y2="502.0" stroke="#d3c5b5" stroke-width="1.4"/>
+<line x1="670.0" y1="502.0" x2="670.0" y2="508.0" stroke="#333333" stroke-width="1.1"/>
+<text x="670.0" y="527.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#444444">
+<tspan x="670.0" dy="0.0">0.9814</tspan>
+</text>
+<line x1="710.0" y1="74.0" x2="710.0" y2="502.0" stroke="#dfd2c1" stroke-width="1" stroke-dasharray="3 5"/>
+<line x1="750.0" y1="74.0" x2="750.0" y2="502.0" stroke="#d3c5b5" stroke-width="1.4"/>
+<line x1="750.0" y1="502.0" x2="750.0" y2="508.0" stroke="#333333" stroke-width="1.1"/>
+<text x="750.0" y="527.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#444444">
+<tspan x="750.0" dy="0.0">0.9822</tspan>
+</text>
+<line x1="790.0" y1="74.0" x2="790.0" y2="502.0" stroke="#dfd2c1" stroke-width="1" stroke-dasharray="3 5"/>
+<line x1="830.0" y1="74.0" x2="830.0" y2="502.0" stroke="#d3c5b5" stroke-width="1.4"/>
+<line x1="830.0" y1="502.0" x2="830.0" y2="508.0" stroke="#333333" stroke-width="1.1"/>
+<text x="830.0" y="527.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#444444">
+<tspan x="830.0" dy="0.0">0.9831</tspan>
+</text>
+<line x1="870.0" y1="74.0" x2="870.0" y2="502.0" stroke="#dfd2c1" stroke-width="1" stroke-dasharray="3 5"/>
+<line x1="910.0" y1="74.0" x2="910.0" y2="502.0" stroke="#d3c5b5" stroke-width="1.4"/>
+<line x1="910.0" y1="502.0" x2="910.0" y2="508.0" stroke="#333333" stroke-width="1.1"/>
+<text x="910.0" y="527.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="#444444">
+<tspan x="910.0" dy="0.0">0.9840</tspan>
+</text>
+<line x1="270.0" y1="502.0" x2="910.0" y2="502.0" stroke="#2b2b2b" stroke-width="2"/>
+<text x="590.0" y="548.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="700" fill="#333333">
+<tspan x="590.0" dy="0.0">Mean test accuracy</tspan>
+</text>
+<line x1="708.9" y1="74.0" x2="708.9" y2="502.0" stroke="#6f5aa8" stroke-width="2" stroke-dasharray="7 6" opacity="0.68"/>
+<text x="932.0" y="66.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#5a5249">
+<tspan x="932.0" dy="0.0">mean +/- std</tspan>
+</text>
+<text x="252.0" y="100.4" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">
+<tspan x="252.0" dy="0.0">Standard MLP</tspan>
+</text>
+<line x1="315.7" y1="95.4" x2="644.9" y2="95.4" stroke="#0067c5" stroke-width="4" stroke-linecap="round"/>
+<line x1="315.7" y1="88.4" x2="315.7" y2="102.4" stroke="#0067c5" stroke-width="2.5"/>
+<line x1="644.9" y1="88.4" x2="644.9" y2="102.4" stroke="#0067c5" stroke-width="2.5"/>
+<circle cx="480.3" cy="95.4" r="7.5" fill="#0067c5" stroke="#fffdf8" stroke-width="3"/>
+<text x="932.0" y="100.4" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">
+<tspan x="932.0" dy="0.0">0.9793 +/- 0.0018</tspan>
+</text>
+<text x="252.0" y="143.2" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">
+<tspan x="252.0" dy="0.0">Standard MLP + Kalman</tspan>
+</text>
+<line x1="398.0" y1="138.2" x2="580.9" y2="138.2" stroke="#003f88" stroke-width="4" stroke-linecap="round"/>
+<line x1="398.0" y1="131.2" x2="398.0" y2="145.2" stroke="#003f88" stroke-width="2.5"/>
+<line x1="580.9" y1="131.2" x2="580.9" y2="145.2" stroke="#003f88" stroke-width="2.5"/>
+<circle cx="489.4" cy="138.2" r="7.5" fill="#003f88" stroke="#fffdf8" stroke-width="3"/>
+<text x="932.0" y="143.2" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">
+<tspan x="932.0" dy="0.0">0.9794 +/- 0.0010</tspan>
+</text>
+<text x="252.0" y="186.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">
+<tspan x="252.0" dy="0.0">Dropout</tspan>
+</text>
+<line x1="535.1" y1="181.0" x2="644.9" y2="181.0" stroke="#00a88f" stroke-width="4" stroke-linecap="round"/>
+<line x1="535.1" y1="174.0" x2="535.1" y2="188.0" stroke="#00a88f" stroke-width="2.5"/>
+<line x1="644.9" y1="174.0" x2="644.9" y2="188.0" stroke="#00a88f" stroke-width="2.5"/>
+<circle cx="590.0" cy="181.0" r="7.5" fill="#00a88f" stroke="#fffdf8" stroke-width="3"/>
+<text x="932.0" y="186.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">
+<tspan x="932.0" dy="0.0">0.9805 +/- 0.0006</tspan>
+</text>
+<text x="252.0" y="228.8" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">
+<tspan x="252.0" dy="0.0">Dropout + Kalman</tspan>
+</text>
+<line x1="425.4" y1="223.8" x2="626.6" y2="223.8" stroke="#00705e" stroke-width="4" stroke-linecap="round"/>
+<line x1="425.4" y1="216.8" x2="425.4" y2="230.8" stroke="#00705e" stroke-width="2.5"/>
+<line x1="626.6" y1="216.8" x2="626.6" y2="230.8" stroke="#00705e" stroke-width="2.5"/>
+<circle cx="526.0" cy="223.8" r="7.5" fill="#00705e" stroke="#fffdf8" stroke-width="3"/>
+<text x="932.0" y="228.8" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">
+<tspan x="932.0" dy="0.0">0.9798 +/- 0.0011</tspan>
+</text>
+<text x="252.0" y="271.6" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">
+<tspan x="252.0" dy="0.0">BBB</tspan>
+</text>
+<line x1="526.0" y1="266.6" x2="599.1" y2="266.6" stroke="#8a3ffc" stroke-width="4" stroke-linecap="round"/>
+<line x1="526.0" y1="259.6" x2="526.0" y2="273.6" stroke="#8a3ffc" stroke-width="2.5"/>
+<line x1="599.1" y1="259.6" x2="599.1" y2="273.6" stroke="#8a3ffc" stroke-width="2.5"/>
+<circle cx="562.6" cy="266.6" r="7.5" fill="#8a3ffc" stroke="#fffdf8" stroke-width="3"/>
+<text x="932.0" y="271.6" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">
+<tspan x="932.0" dy="0.0">0.9802 +/- 0.0004</tspan>
+</text>
+<text x="252.0" y="314.4" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">
+<tspan x="252.0" dy="0.0">BBB + Kalman</tspan>
+</text>
+<line x1="498.6" y1="309.4" x2="681.4" y2="309.4" stroke="#5b21b6" stroke-width="4" stroke-linecap="round"/>
+<line x1="498.6" y1="302.4" x2="498.6" y2="316.4" stroke="#5b21b6" stroke-width="2.5"/>
+<line x1="681.4" y1="302.4" x2="681.4" y2="316.4" stroke="#5b21b6" stroke-width="2.5"/>
+<circle cx="590.0" cy="309.4" r="7.5" fill="#5b21b6" stroke="#fffdf8" stroke-width="3"/>
+<text x="932.0" y="314.4" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">
+<tspan x="932.0" dy="0.0">0.9805 +/- 0.0010</tspan>
+</text>
+<text x="252.0" y="357.2" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#222222" text-decoration="underline">
+<tspan x="252.0" dy="0.0">BBB + Dropout</tspan>
+</text>
+<line x1="672.3" y1="352.2" x2="745.4" y2="352.2" stroke="#f15a24" stroke-width="5" stroke-linecap="round"/>
+<line x1="672.3" y1="344.2" x2="672.3" y2="360.2" stroke="#f15a24" stroke-width="2.5"/>
+<line x1="745.4" y1="344.2" x2="745.4" y2="360.2" stroke="#f15a24" stroke-width="2.5"/>
+<circle cx="708.9" cy="352.2" r="8.5" fill="#f15a24" stroke="#fffdf8" stroke-width="3"/>
+<text x="932.0" y="357.2" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#222222" text-decoration="underline">
+<tspan x="932.0" dy="0.0">0.9818 +/- 0.0004</tspan>
+</text>
+<text x="252.0" y="400.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#222222" text-decoration="underline">
+<tspan x="252.0" dy="0.0">BBB + Dropout + Kalman</tspan>
+</text>
+<line x1="681.4" y1="395.0" x2="736.3" y2="395.0" stroke="#c62828" stroke-width="5" stroke-linecap="round"/>
+<line x1="681.4" y1="387.0" x2="681.4" y2="403.0" stroke="#c62828" stroke-width="2.5"/>
+<line x1="736.3" y1="387.0" x2="736.3" y2="403.0" stroke="#c62828" stroke-width="2.5"/>
+<circle cx="708.9" cy="395.0" r="8.5" fill="#c62828" stroke="#fffdf8" stroke-width="3"/>
+<text x="932.0" y="400.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="15" font-weight="800" fill="#222222" text-decoration="underline">
+<tspan x="932.0" dy="0.0">0.9818 +/- 0.0003</tspan>
+</text>
+<text x="252.0" y="442.8" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">
+<tspan x="252.0" dy="0.0">Standard MLP h800</tspan>
+</text>
+<line x1="370.6" y1="437.8" x2="699.7" y2="437.8" stroke="#4f9cf9" stroke-width="4" stroke-linecap="round"/>
+<line x1="370.6" y1="430.8" x2="370.6" y2="444.8" stroke="#4f9cf9" stroke-width="2.5"/>
+<line x1="699.7" y1="430.8" x2="699.7" y2="444.8" stroke="#4f9cf9" stroke-width="2.5"/>
+<circle cx="535.1" cy="437.8" r="7.5" fill="#4f9cf9" stroke="#fffdf8" stroke-width="3"/>
+<text x="932.0" y="442.8" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">
+<tspan x="932.0" dy="0.0">0.9799 +/- 0.0018</tspan>
+</text>
+<text x="252.0" y="485.6" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">
+<tspan x="252.0" dy="0.0">Standard MLP + Kalman h800</tspan>
+</text>
+<line x1="370.6" y1="480.6" x2="718.0" y2="480.6" stroke="#2563eb" stroke-width="4" stroke-linecap="round"/>
+<line x1="370.6" y1="473.6" x2="370.6" y2="487.6" stroke="#2563eb" stroke-width="2.5"/>
+<line x1="718.0" y1="473.6" x2="718.0" y2="487.6" stroke="#2563eb" stroke-width="2.5"/>
+<circle cx="544.3" cy="480.6" r="7.5" fill="#2563eb" stroke="#fffdf8" stroke-width="3"/>
+<text x="932.0" y="485.6" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="14" font-weight="700" fill="#222222">
+<tspan x="932.0" dy="0.0">0.9800 +/- 0.0019</tspan>
+</text>
+</svg>

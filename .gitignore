@@ -1,0 +1,64 @@
+# macOS / editor metadata
+.DS_Store
+Thumbs.db
+
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Virtual environments and local config
+.venv/
+venv/
+env/
+ENV/
+*.env
+.env
+.env.*
+*.local
+
+# Build / packaging outputs
+build/
+dist/
+*.egg-info/
+
+# Dataset downloads
+data/MNIST/
+data/FashionMNIST/
+data/kalmanalgo_data/
+
+# Large or regenerable model artifacts
+results/**/*.pt
+results/**/*.pth
+results/**/*.ckpt
+results/**/checkpoints/
+results/archived_kalmanalgo_runs/
+results/archived_sample_trust_runs/
+results/classe_plots/wide_standard_confirm/mnist/
+results/bayes_by_backprop/mnist/checkpoints/
+
+# Generated caches and lock files
+results/**/.cache/
+results/**/.matplotlib/
+results/**/*.lock
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.aux
+*.out
+
+# Temporary logs
+*.tmp
+*.temp
+debug.log
+
+# Archives
+*.zip
+*.tar
+*.tar.gz

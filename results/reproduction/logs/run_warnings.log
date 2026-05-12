@@ -1,0 +1,1 @@
+psutil is not installed; CPU memory uses resource.getrusage fallback when available.

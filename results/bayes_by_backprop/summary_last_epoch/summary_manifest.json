@@ -1,0 +1,17 @@
+{
+  "selection_mode": "last_epoch",
+  "summary_markdown": "results/summary_last_epoch/experiment_summary.md",
+  "trust_summary_markdown": "results/summary_last_epoch/update_trust_summary.md",
+  "generated_plots": [
+    "results/summary_last_epoch/bayesian_dropout_trust_accuracy_by_trust.svg",
+    "results/summary_last_epoch/bayesian_dropout_trust_error_by_trust.svg",
+    "results/summary_last_epoch/bayesian_trust_accuracy_by_trust.svg",
+    "results/summary_last_epoch/bayesian_trust_error_by_trust.svg",
+    "results/summary_last_epoch/mnist_accuracy_summary.svg",
+    "results/summary_last_epoch/mnist_error_summary.svg",
+    "results/summary_last_epoch/mnist_train_accuracy_comparison.svg",
+    "results/summary_last_epoch/mnist_val_accuracy_comparison.svg",
+    "results/summary_last_epoch/mnist_val_loss_comparison.svg",
+    "results/summary_last_epoch/regression_uncertainty_summary.svg"
+  ]
+}

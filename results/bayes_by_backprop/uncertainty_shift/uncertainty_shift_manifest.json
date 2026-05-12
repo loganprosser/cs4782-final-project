@@ -1,0 +1,9 @@
+{
+  "metrics_json": "results/uncertainty_shift/uncertainty_shift_metrics.json",
+  "metrics_csv": "results/uncertainty_shift/uncertainty_shift_metrics.csv",
+  "summary": "results/uncertainty_shift/uncertainty_shift_summary.md",
+  "plots": [
+    "results/uncertainty_shift/uncertainty_shift_accuracy.png",
+    "results/uncertainty_shift/uncertainty_shift_entropy_auc.png"
+  ]
+}

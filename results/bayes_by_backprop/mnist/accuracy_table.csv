@@ -1,0 +1,17 @@
+Model,Test Accuracy,Test Error
+bayesian,0.9797,0.0202999999999999
+standard,0.9782,0.0218
+dropout,0.9812,0.0188
+bayesian_dropout_0p1,0.9821,0.0179
+standard_trust_none,0.98,0.02
+dropout_trust_none,0.9812,0.0188
+bayesian_trust_none,0.9768,0.0232
+bayesian_dropout_0p1_trust_none,0.9808,0.0191999999999999
+bayesian_trust_depth_lambda0.15,0.9772,0.0228
+bayesian_dropout_0p1_trust_depth_lambda0.15,0.9805,0.0194999999999999
+bayesian_trust_gradnorm,0.9798,0.0201999999999999
+bayesian_dropout_0p1_trust_gradnorm,0.9805,0.0194999999999999
+bayesian_trust_gradvar_beta0.95,0.978,0.022
+bayesian_dropout_0p1_trust_gradvar_beta0.95,0.9815,0.0184999999999999
+bayesian_trust_kalmanLayer_beta0.95_Q0.0001_P1.0_R1.0,0.9806,0.0193999999999999
+bayesian_dropout_0p1_trust_kalmanLayer_beta0.95_Q0.0001_P1.0_R1.0,0.9811,0.018900000000000028

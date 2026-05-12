@@ -1,0 +1,91 @@
+{
+  "model": "bayesian",
+  "run_name": "bayesian_trust_gradvar_beta0.95",
+  "epochs": 10,
+  "batch_size": 128,
+  "learning_rate": 0.001,
+  "weight_decay": 0.0,
+  "kl_weight": 1.0,
+  "mc_samples": 10,
+  "bayesian_dropout": 0.0,
+  "update_trust_mode": "running_grad_var",
+  "depth_decay_lambda": 0.15,
+  "grad_trust_eps": 1e-08,
+  "grad_trust_clip_min": 0.1,
+  "grad_trust_clip_max": 10.0,
+  "running_grad_beta": 0.95,
+  "kalman_beta": 0.95,
+  "kalman_process_noise": 0.0001,
+  "kalman_initial_P": 1.0,
+  "kalman_initial_R": 1.0,
+  "kalman_eps": 1e-08,
+  "kalman_clip_min": 0.05,
+  "kalman_clip_max": 1.0,
+  "seed": 0,
+  "selection_strategy": "best_validation_accuracy_then_loss",
+  "best_epoch": 9,
+  "best_val_metrics": {
+    "accuracy": 0.977,
+    "loss": 0.07691079250971476
+  },
+  "test_metrics": {
+    "loss": 0.06991849610096543,
+    "accuracy": 0.978,
+    "error_rate": 0.02200000000000002
+  },
+  "last_epoch_test_metrics": {
+    "loss": 0.06840511181978509,
+    "accuracy": 0.9793,
+    "error_rate": 0.02070000000000005
+  },
+  "history": {
+    "train_loss": [
+      37.864528299967446,
+      32.94889115397135,
+      29.708711378309463,
+      26.830748323228626,
+      24.35593591760706,
+      22.36501217764395,
+      20.87583016459147,
+      19.81247952270508,
+      19.052501789799443,
+      18.492457904956957
+    ],
+    "train_accuracy": [
+      0.914074074074074,
+      0.9685185185185186,
+      0.98,
+      0.9863703703703703,
+      0.9883703703703703,
+      0.9892407407407408,
+      0.9887222222222222,
+      0.9886481481481482,
+      0.9873888888888889,
+      0.9858703703703704
+    ],
+    "val_loss": [
+      0.13968113374710084,
+      0.09722796511650085,
+      0.08583189984162648,
+      0.07679189296563467,
+      0.08330298346281052,
+      0.07987741617361704,
+      0.08212825459241867,
+      0.07717801194389662,
+      0.07691079250971476,
+      0.08183897082010905
+    ],
+    "val_accuracy": [
+      0.958,
+      0.9695,
+      0.973,
+      0.9763333333333334,
+      0.974,
+      0.975,
+      0.9751666666666666,
+      0.976,
+      0.977,
+      0.9756666666666667
+    ]
+  }
+}

@@ -1,0 +1,192 @@
+{
+  "config": {
+    "batch_size": 128,
+    "train_steps": 20,
+    "eval_steps": 30,
+    "eval_mc_samples": 10,
+    "seed": 0
+  },
+  "device_info": {
+    "device": "cpu",
+    "cuda_available": false,
+    "mps_available": true
+  },
+  "results": [
+    {
+      "run_name": "standard",
+      "display_name": "Standard MLP",
+      "parameter_count": 478410,
+      "parameter_memory_mb": 1.8249893188476562,
+      "train_step_ms": 1.7156562505988404,
+      "eval_step_ms": 0.3054569339534889,
+      "rss_delta_mb": 13.203125,
+      "test_accuracy": 0.9782,
+      "test_error": 0.02180000000000004
+    },
+    {
+      "run_name": "dropout",
+      "display_name": "Dropout MLP",
+      "parameter_count": 478410,
+      "parameter_memory_mb": 1.8249893188476562,
+      "train_step_ms": 2.0324249984696507,
+      "eval_step_ms": 0.3160722010458509,
+      "rss_delta_mb": 0.484375,
+      "test_accuracy": 0.9812,
+      "test_error": 0.01880000000000004
+    },
+    {
+      "run_name": "bayesian",
+      "display_name": "Bayes by Backprop",
+      "parameter_count": 956820,
+      "parameter_memory_mb": 3.6499786376953125,
+      "train_step_ms": 15.490204200614244,
+      "eval_step_ms": 86.63194030135249,
+      "rss_delta_mb": 31.140625,
+      "test_accuracy": 0.9797,
+      "test_error": 0.020299999999999985
+    },
+    {
+      "run_name": "bayesian_dropout_0p1",
+      "display_name": "Bayesian + Dropout",
+      "parameter_count": 956820,
+      "parameter_memory_mb": 3.6499786376953125,
+      "train_step_ms": 15.805143749457784,
+      "eval_step_ms": 88.03270136510642,
+      "rss_delta_mb": 25.421875,
+      "test_accuracy": 0.9821,
+      "test_error": 0.017900000000000027
+    },
+    {
+      "run_name": "standard_trust_none",
+      "display_name": "Standard MLP (no trust scaling)",
+      "parameter_count": 478410,
+      "parameter_memory_mb": 1.8249893188476562,
+      "train_step_ms": 1.7656708019785583,
+      "eval_step_ms": 0.3283847336812566,
+      "rss_delta_mb": 0.015625,
+      "test_accuracy": 0.9782,
+      "test_error": 0.02180000000000004
+    },
+    {
+      "run_name": "dropout_trust_none",
+      "display_name": "Dropout MLP (no trust scaling)",
+      "parameter_count": 478410,
+      "parameter_memory_mb": 1.8249893188476562,
+      "train_step_ms": 2.246762500726618,
+      "eval_step_ms": 0.3262666655549159,
+      "rss_delta_mb": 0.0,
+      "test_accuracy": 0.9812,
+      "test_error": 0.01880000000000004
+    },
+    {
+      "run_name": "bayesian_trust_none",
+      "display_name": "Bayes by Backprop (no trust scaling)",
+      "parameter_count": 956820,
+      "parameter_memory_mb": 3.6499786376953125,
+      "train_step_ms": 15.207968748291023,
+      "eval_step_ms": 85.79768890049309,
+      "rss_delta_mb": 0.0625,
+      "test_accuracy": 0.9797,
+      "test_error": 0.020299999999999985
+    },
+    {
+      "run_name": "bayesian_dropout_0p1_trust_none",
+      "display_name": "Bayesian + Dropout (no trust scaling)",
+      "parameter_count": 956820,
+      "parameter_memory_mb": 3.6499786376953125,
+      "train_step_ms": 15.855772898066789,
+      "eval_step_ms": 87.62012083316222,
+      "rss_delta_mb": 0.0,
+      "test_accuracy": 0.9829,
+      "test_error": 0.017100000000000004
+    },
+    {
+      "run_name": "bayesian_trust_depth_lambda0.15",
+      "display_name": "Bayes by Backprop (depth-decay lambda=0.15)",
+      "parameter_count": 956820,
+      "parameter_memory_mb": 3.6499786376953125,
+      "train_step_ms": 15.585237499908544,
+      "eval_step_ms": 88.48867223326427,
+      "rss_delta_mb": 2.484375,
+      "test_accuracy": 0.98,
+      "test_error": 0.020000000000000018
+    },
+    {
+      "run_name": "bayesian_trust_gradnorm",
+      "display_name": "Bayes by Backprop (grad-norm scaling)",
+      "parameter_count": 956820,
+      "parameter_memory_mb": 3.6499786376953125,
+      "train_step_ms": 14.880358349182643,
+      "eval_step_ms": 87.24782223192354,
+      "rss_delta_mb": 0.0,
+      "test_accuracy": 0.9806,
+      "test_error": 0.019399999999999973
+    },
+    {
+      "run_name": "bayesian_trust_gradvar_beta0.95",
+      "display_name": "Bayes by Backprop (running-grad-var beta=0.95)",
+      "parameter_count": 956820,
+      "parameter_memory_mb": 3.6499786376953125,
+      "train_step_ms": 15.036652100388892,
+      "eval_step_ms": 88.4539999999106,
+      "rss_delta_mb": 0.0,
+      "test_accuracy": 0.9793,
+      "test_error": 0.02070000000000005
+    },
+    {
+      "run_name": "bayesian_dropout_0p1_trust_depth_lambda0.15",
+      "display_name": "Bayesian + Dropout (depth-decay lambda=0.15)",
+      "parameter_count": 956820,
+      "parameter_memory_mb": 3.6499786376953125,
+      "train_step_ms": 15.921777099720202,
+      "eval_step_ms": 85.50505833312248,
+      "rss_delta_mb": 0.09375,
+      "test_accuracy": 0.9806,
+      "test_error": 0.019399999999999973
+    },
+    {
+      "run_name": "bayesian_dropout_0p1_trust_gradnorm",
+      "display_name": "Bayesian + Dropout (grad-norm scaling)",
+      "parameter_count": 956820,
+      "parameter_memory_mb": 3.6499786376953125,
+      "train_step_ms": 15.551360399695113,
+      "eval_step_ms": 89.89815556560643,
+      "rss_delta_mb": 0.0,
+      "test_accuracy": 0.9807,
+      "test_error": 0.019299999999999984
+    },
+    {
+      "run_name": "bayesian_dropout_0p1_trust_gradvar_beta0.95",
+      "display_name": "Bayesian + Dropout (running-grad-var beta=0.95)",
+      "parameter_count": 956820,
+      "parameter_memory_mb": 3.6499786376953125,
+      "train_step_ms": 15.68612710107118,
+      "eval_step_ms": 86.77075279993005,
+      "rss_delta_mb": 0.015625,
+      "test_accuracy": 0.98,
+      "test_error": 0.020000000000000018
+    },
+    {
+      "run_name": "bayesian_trust_kalmanLayer_beta0.95_Q0.0001_P1.0_R1.0",
+      "display_name": "Bayes by Backprop (kalmanLayer beta0.95 Q0.0001 P1.0 R1.0)",
+      "parameter_count": 956820,
+      "parameter_memory_mb": 3.6499786376953125,
+      "train_step_ms": 15.190181249636225,
+      "eval_step_ms": 90.78582360137564,
+      "rss_delta_mb": 0.078125,
+      "test_accuracy": 0.9814,
+      "test_error": 0.01859999999999995
+    },
+    {
+      "run_name": "bayesian_dropout_0p1_trust_kalmanLayer_beta0.95_Q0.0001_P1.0_R1.0",
+      "display_name": "Bayesian + Dropout (kalmanLayer beta0.95 Q0.0001 P1.0 R1.0)",
+      "parameter_count": 956820,
+      "parameter_memory_mb": 3.6499786376953125,
+      "train_step_ms": 16.03936665051151,
+      "eval_step_ms": 87.88141666639906,
+      "rss_delta_mb": 0.015625,
+      "test_accuracy": 0.9811,
+      "test_error": 0.018900000000000028
+    }
+  ]
+}

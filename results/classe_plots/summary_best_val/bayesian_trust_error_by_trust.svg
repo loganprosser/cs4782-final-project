@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="540" viewBox="0 0 1180 540">
+<rect width="100%" height="100%" fill="#fffdf8"/>
+<text x="590.0" y="36" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="24" fill="#222222">Bayes by Backprop Error by Trust Mode</text>
+<line x1="90" y1="395" x2="1110" y2="395" stroke="#333333" stroke-width="2"/>
+<line x1="90" y1="70" x2="90" y2="395" stroke="#333333" stroke-width="2"/>
+<text x="175.0" y="421.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#222222">
+<tspan x="175.0" dy="0">Kalman layer</tspan>
+</text>
+<rect x="141.0" y="146.2" width="68.0" height="248.8" fill="#bc4749" rx="5"/>
+<text x="175.0" y="138.2" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#222222">0.0184</text>
+<text x="345.0" y="421.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#222222">
+<tspan x="345.0" dy="0">Propagated</tspan>
+<tspan x="345.0" dy="15">uncertainty</tspan>
+</text>
+<rect x="311.0" y="136.7" width="68.0" height="258.3" fill="#bc4749" rx="5"/>
+<text x="345.0" y="128.7" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#222222">0.0191</text>
+<text x="515.0" y="421.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#222222">
+<tspan x="515.0" dy="0">Depth Decay</tspan>
+</text>
+<rect x="481.0" y="131.3" width="68.0" height="263.7" fill="#bc4749" rx="5"/>
+<text x="515.0" y="123.3" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#222222">0.0195</text>
+<text x="685.0" y="421.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#222222">
+<tspan x="685.0" dy="0">None</tspan>
+</text>
+<rect x="651.0" y="125.9" width="68.0" height="269.1" fill="#bc4749" rx="5"/>
+<text x="685.0" y="117.9" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#222222">0.0199</text>
+<text x="855.0" y="421.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#222222">
+<tspan x="855.0" dy="0">Grad Var</tspan>
+</text>
+<rect x="821.0" y="120.5" width="68.0" height="274.5" fill="#bc4749" rx="5"/>
+<text x="855.0" y="112.5" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#222222">0.0203</text>
+<text x="1025.0" y="421.0" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#222222">
+<tspan x="1025.0" dy="0">Grad Norm</tspan>
+</text>
+<rect x="991.0" y="112.4" width="68.0" height="282.6" fill="#bc4749" rx="5"/>
+<text x="1025.0" y="104.4" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="12" fill="#222222">0.0209</text>
+<line x1="84" y1="395.0" x2="90" y2="395.0" stroke="#333333" stroke-width="1"/>
+<text x="78" y="400.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#444444">0.000</text>
+<line x1="84" y1="313.8" x2="90" y2="313.8" stroke="#333333" stroke-width="1"/>
+<text x="78" y="318.8" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#444444">0.006</text>
+<line x1="84" y1="232.5" x2="90" y2="232.5" stroke="#333333" stroke-width="1"/>
+<text x="78" y="237.5" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#444444">0.012</text>
+<line x1="84" y1="151.2" x2="90" y2="151.2" stroke="#333333" stroke-width="1"/>
+<text x="78" y="156.2" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#444444">0.018</text>
+<line x1="84" y1="70.0" x2="90" y2="70.0" stroke="#333333" stroke-width="1"/>
+<text x="78" y="75.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#444444">0.024</text>
+<rect x="102" y="46" width="18" height="18" fill="#bc4749" rx="3"/>
+<text x="128" y="60" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#222222">Error</text>
+</svg>
