@@ -1,0 +1,20 @@
+{
+  "summary_markdown": "results/summary/experiment_summary.md",
+  "trust_summary_markdown": "results/summary/update_trust_summary.md",
+  "generated_plots": [
+    "results/summary/bayesian_dropout_trust_accuracy_by_trust.svg",
+    "results/summary/bayesian_dropout_trust_error_by_trust.svg",
+    "results/summary/bayesian_trust_accuracy_by_trust.svg",
+    "results/summary/bayesian_trust_error_by_trust.svg",
+    "results/summary/mnist_accuracy_summary.svg",
+    "results/summary/mnist_accuracy_vs_train_cost.svg",
+    "results/summary/mnist_error_summary.svg",
+    "results/summary/mnist_eval_step_cost.svg",
+    "results/summary/mnist_parameter_memory.svg",
+    "results/summary/mnist_train_accuracy_comparison.svg",
+    "results/summary/mnist_train_step_cost.svg",
+    "results/summary/mnist_val_accuracy_comparison.svg",
+    "results/summary/mnist_val_loss_comparison.svg",
+    "results/summary/regression_uncertainty_summary.svg"
+  ]
+}

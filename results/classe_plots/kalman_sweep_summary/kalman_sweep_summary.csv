@@ -1,0 +1,21 @@
+group,display,runs,mean_accuracy,std_accuracy,mean_error,std_error,best_accuracy,worst_accuracy,seeds
+standard_trust_kalmanLayer_beta0.95_Q0.0001_P1.0_R1.0_arch_h800_l2_wide,Standard MLP + Kalman h800/L2,1,0.9829,0.0,0.017100000000000004,0.0,0.9829,0.9829,0
+dropout_trust_kalmanLayer_beta0.95_Q0.0001_P1.0_R1.0_arch_h800_l2_wide,Dropout MLP + Kalman h800/L2,1,0.9821,0.0,0.017900000000000027,0.0,0.9821,0.9821,0
+bayesian_dropout_0p1_trust_kalmanLayer_beta0.95_Q0.0001_P1.0_R1.0,BBB + Dropout + Kalman,3,0.9818333333333333,0.0002516611478423306,0.018166666666666664,0.0002516611478423306,0.9821,0.9816,"0,1,2"
+bayesian_dropout_0p1_trust_none,BBB + Dropout no trust,3,0.9817666666666667,0.00035118845842838596,0.018233333333333324,0.00035118845842838596,0.9821,0.9814,"0,1,2"
+standard_trust_none_arch_h800_l2_wide,Standard MLP no trust h800/L2,1,0.9813,0.0,0.01870000000000005,0.0,0.9813,0.9813,0
+bayesian_trust_kalmanLayer_beta0.95_Q0.0001_P1.0_R1.0_arch_h400_l3_deep,BBB + Kalman h400/L3,1,0.9806,0.0,0.019399999999999973,0.0,0.9806,0.9806,0
+dropout_trust_none,Dropout MLP no trust,3,0.9805,0.0006244997998398333,0.0195,0.0006244997998398333,0.981,0.9798,"0,1,2"
+bayesian_trust_kalmanLayer_beta0.95_Q0.0001_P1.0_R1.0,BBB + Kalman,3,0.9805,0.0009643650760993159,0.0195,0.0009643650760993159,0.9816,0.9798,"0,1,2"
+bayesian_trust_kalmanLayer_beta0.95_Q0.0001_P1.0_R1.0_arch_h800_l2_wide,BBB + Kalman h800/L2,1,0.9804,0.0,0.01959999999999995,0.0,0.9804,0.9804,0
+dropout_trust_none_arch_h400_l3_deep,Dropout MLP no trust h400/L3,1,0.9803,0.0,0.01970000000000005,0.0,0.9803,0.9803,0
+bayesian_trust_none,BBB no trust,3,0.9802333333333333,0.0004163331998932429,0.019766666666666672,0.0004163331998932429,0.9807,0.9799,"0,1,2"
+dropout_trust_none_arch_h800_l2_wide,Dropout MLP no trust h800/L2,1,0.9802,0.0,0.01980000000000004,0.0,0.9802,0.9802,0
+bayesian_trust_none_arch_h800_l2_wide,BBB no trust h800/L2,1,0.9802,0.0,0.01980000000000004,0.0,0.9802,0.9802,0
+dropout_trust_kalmanLayer_beta0.95_Q0.0001_P1.0_R1.0_arch_h400_l3_deep,Dropout MLP + Kalman h400/L3,1,0.98,0.0,0.020000000000000018,0.0,0.98,0.98,0
+dropout_trust_kalmanLayer_beta0.95_Q0.0001_P1.0_R1.0,Dropout MLP + Kalman,3,0.9798,0.0010816653826391854,0.020199999999999996,0.0010816653826391854,0.981,0.9789,"0,1,2"
+standard_trust_kalmanLayer_beta0.95_Q0.0001_P1.0_R1.0_arch_h400_l3_deep,Standard MLP + Kalman h400/L3,1,0.9797,0.0,0.020299999999999985,0.0,0.9797,0.9797,0
+standard_trust_kalmanLayer_beta0.95_Q0.0001_P1.0_R1.0,Standard MLP + Kalman,3,0.9793666666666666,0.00100664459136944,0.020633333333333354,0.00100664459136944,0.9803,0.9783,"0,1,2"
+standard_trust_none,Standard MLP no trust,3,0.9793,0.001752141546793498,0.020700000000000014,0.001752141546793498,0.9811,0.9776,"0,1,2"
+bayesian_trust_none_arch_h400_l3_deep,BBB no trust h400/L3,1,0.9786,0.0,0.021399999999999975,0.0,0.9786,0.9786,0
+standard_trust_none_arch_h400_l3_deep,Standard MLP no trust h400/L3,1,0.9778,0.0,0.022199999999999998,0.0,0.9778,0.9778,0

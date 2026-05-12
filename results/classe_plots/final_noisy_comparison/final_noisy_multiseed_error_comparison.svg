@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1360" height="710" viewBox="0 0 1360 710">
+<rect width="100%" height="100%" fill="#fffdf8"/>
+<text x="680.0" y="36" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="24" fill="#222222">Mean Noisy FashionMNIST Test Error Across Seeds</text>
+<line x1="440" y1="650" x2="1210" y2="650" stroke="#333333" stroke-width="2"/>
+<line x1="440" y1="70" x2="440" y2="650" stroke="#333333" stroke-width="2"/>
+<text x="422.0" y="91.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#222222">
+<tspan x="422.0" dy="0">Standard MLP h400/L2</tspan>
+</text>
+<rect x="440.0" y="87.0" width="248.3" height="24" fill="#2a6f97" rx="5"/>
+<line x1="634.0" y1="99.0" x2="742.6" y2="99.0" stroke="#111111" stroke-width="2"/>
+<line x1="634.0" y1="91.0" x2="634.0" y2="107.0" stroke="#111111" stroke-width="2"/>
+<line x1="742.6" y1="91.0" x2="742.6" y2="107.0" stroke="#111111" stroke-width="2"/>
+<text x="752.6" y="104.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#222222">0.1192 +/- 0.0028</text>
+<text x="422.0" y="149.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#222222">
+<tspan x="422.0" dy="0">Standard MLP + Kalman h400/L2</tspan>
+</text>
+<rect x="440.0" y="145.0" width="307.8" height="24" fill="#4d908e" rx="5"/>
+<line x1="676.7" y1="157.0" x2="818.9" y2="157.0" stroke="#111111" stroke-width="2"/>
+<line x1="676.7" y1="149.0" x2="676.7" y2="165.0" stroke="#111111" stroke-width="2"/>
+<line x1="818.9" y1="149.0" x2="818.9" y2="165.0" stroke="#111111" stroke-width="2"/>
+<text x="828.9" y="162.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#222222">0.1223 +/- 0.0037</text>
+<text x="422.0" y="207.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#222222">
+<tspan x="422.0" dy="0">Standard MLP h800/L2</tspan>
+</text>
+<rect x="440.0" y="203.0" width="261.9" height="24" fill="#bc4749" rx="5"/>
+<line x1="636.0" y1="215.0" x2="767.7" y2="215.0" stroke="#111111" stroke-width="2"/>
+<line x1="636.0" y1="207.0" x2="636.0" y2="223.0" stroke="#111111" stroke-width="2"/>
+<line x1="767.7" y1="207.0" x2="767.7" y2="223.0" stroke="#111111" stroke-width="2"/>
+<text x="777.7" y="220.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#222222">0.1199 +/- 0.0034</text>
+<text x="422.0" y="265.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#222222">
+<tspan x="422.0" dy="0">Standard MLP + Kalman h800/L2</tspan>
+</text>
+<rect x="440.0" y="261.0" width="248.3" height="24" fill="#7a3e9d" rx="5"/>
+<line x1="655.7" y1="273.0" x2="720.9" y2="273.0" stroke="#111111" stroke-width="2"/>
+<line x1="655.7" y1="265.0" x2="655.7" y2="281.0" stroke="#111111" stroke-width="2"/>
+<line x1="720.9" y1="265.0" x2="720.9" y2="281.0" stroke="#111111" stroke-width="2"/>
+<text x="730.9" y="278.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#222222">0.1192 +/- 0.0017</text>
+<text x="422.0" y="323.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#222222">
+<tspan x="422.0" dy="0">Dropout MLP h400/L2</tspan>
+</text>
+<rect x="440.0" y="319.0" width="502.4" height="24" fill="#2a6f97" rx="5"/>
+<line x1="915.5" y1="331.0" x2="969.4" y2="331.0" stroke="#111111" stroke-width="2"/>
+<line x1="915.5" y1="323.0" x2="915.5" y2="339.0" stroke="#111111" stroke-width="2"/>
+<line x1="969.4" y1="323.0" x2="969.4" y2="339.0" stroke="#111111" stroke-width="2"/>
+<text x="979.4" y="336.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#222222">0.1323 +/- 0.0014</text>
+<text x="422.0" y="381.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#222222">
+<tspan x="422.0" dy="0">Dropout MLP + Kalman h400/L2</tspan>
+</text>
+<rect x="440.0" y="377.0" width="546.4" height="24" fill="#4d908e" rx="5"/>
+<line x1="956.8" y1="389.0" x2="1016.0" y2="389.0" stroke="#111111" stroke-width="2"/>
+<line x1="956.8" y1="381.0" x2="956.8" y2="397.0" stroke="#111111" stroke-width="2"/>
+<line x1="1016.0" y1="381.0" x2="1016.0" y2="397.0" stroke="#111111" stroke-width="2"/>
+<text x="1026.0" y="394.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#222222">0.1346 +/- 0.0015</text>
+<text x="422.0" y="439.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#222222">
+<tspan x="422.0" dy="0">BBB h400/L2</tspan>
+</text>
+<rect x="440.0" y="435.0" width="324.6" height="24" fill="#bc4749" rx="5"/>
+<line x1="712.8" y1="447.0" x2="816.4" y2="447.0" stroke="#111111" stroke-width="2"/>
+<line x1="712.8" y1="439.0" x2="712.8" y2="455.0" stroke="#111111" stroke-width="2"/>
+<line x1="816.4" y1="439.0" x2="816.4" y2="455.0" stroke="#111111" stroke-width="2"/>
+<text x="826.4" y="452.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#222222">0.1231 +/- 0.0027</text>
+<text x="422.0" y="497.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#222222">
+<tspan x="422.0" dy="0">BBB + Kalman h400/L2</tspan>
+</text>
+<rect x="440.0" y="493.0" width="335.6" height="24" fill="#7a3e9d" rx="5"/>
+<line x1="760.4" y1="505.0" x2="790.7" y2="505.0" stroke="#111111" stroke-width="2"/>
+<line x1="760.4" y1="497.0" x2="760.4" y2="513.0" stroke="#111111" stroke-width="2"/>
+<line x1="790.7" y1="497.0" x2="790.7" y2="513.0" stroke="#111111" stroke-width="2"/>
+<text x="800.7" y="510.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#222222">0.1237 +/- 0.0008</text>
+<text x="422.0" y="555.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#222222">
+<tspan x="422.0" dy="0">BBB + Dropout h400/L2</tspan>
+</text>
+<rect x="440.0" y="551.0" width="339.5" height="24" fill="#2a6f97" rx="5"/>
+<line x1="764.8" y1="563.0" x2="794.1" y2="563.0" stroke="#111111" stroke-width="2"/>
+<line x1="764.8" y1="555.0" x2="764.8" y2="571.0" stroke="#111111" stroke-width="2"/>
+<line x1="794.1" y1="555.0" x2="794.1" y2="571.0" stroke="#111111" stroke-width="2"/>
+<text x="804.1" y="568.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#222222">0.1239 +/- 0.0008</text>
+<text x="422.0" y="613.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#222222">
+<tspan x="422.0" dy="0">BBB + Dropout + Kalman h400/L2</tspan>
+</text>
+<rect x="440.0" y="609.0" width="357.6" height="24" fill="#4d908e" rx="5"/>
+<line x1="794.6" y1="621.0" x2="800.5" y2="621.0" stroke="#111111" stroke-width="2"/>
+<line x1="794.6" y1="613.0" x2="794.6" y2="629.0" stroke="#111111" stroke-width="2"/>
+<line x1="800.5" y1="613.0" x2="800.5" y2="629.0" stroke="#111111" stroke-width="2"/>
+<text x="810.5" y="626.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#222222">0.1248 +/- 0.0002</text>
+<line x1="440.0" y1="650" x2="440.0" y2="656" stroke="#333333" stroke-width="1"/>
+<text x="440.0" y="675" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#444444">0.106</text>
+<line x1="440.0" y1="70" x2="440.0" y2="650" stroke="#e7e1d7" stroke-width="1"/>
+<line x1="568.3" y1="650" x2="568.3" y2="656" stroke="#333333" stroke-width="1"/>
+<text x="568.3" y="675" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#444444">0.113</text>
+<line x1="568.3" y1="70" x2="568.3" y2="650" stroke="#e7e1d7" stroke-width="1"/>
+<line x1="696.7" y1="650" x2="696.7" y2="656" stroke="#333333" stroke-width="1"/>
+<text x="696.7" y="675" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#444444">0.120</text>
+<line x1="696.7" y1="70" x2="696.7" y2="650" stroke="#e7e1d7" stroke-width="1"/>
+<line x1="825.0" y1="650" x2="825.0" y2="656" stroke="#333333" stroke-width="1"/>
+<text x="825.0" y="675" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#444444">0.126</text>
+<line x1="825.0" y1="70" x2="825.0" y2="650" stroke="#e7e1d7" stroke-width="1"/>
+<line x1="953.3" y1="650" x2="953.3" y2="656" stroke="#333333" stroke-width="1"/>
+<text x="953.3" y="675" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#444444">0.133</text>
+<line x1="953.3" y1="70" x2="953.3" y2="650" stroke="#e7e1d7" stroke-width="1"/>
+<line x1="1081.7" y1="650" x2="1081.7" y2="656" stroke="#333333" stroke-width="1"/>
+<text x="1081.7" y="675" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#444444">0.139</text>
+<line x1="1081.7" y1="70" x2="1081.7" y2="650" stroke="#e7e1d7" stroke-width="1"/>
+<line x1="1210.0" y1="650" x2="1210.0" y2="656" stroke="#333333" stroke-width="1"/>
+<text x="1210.0" y="675" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#444444">0.146</text>
+</svg>

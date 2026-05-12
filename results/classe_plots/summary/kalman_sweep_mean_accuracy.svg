@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1320" height="630" viewBox="0 0 1320 630">
+<rect width="100%" height="100%" fill="#fffdf8"/>
+<text x="660.0" y="36" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="24" fill="#222222">Kalman Sweep Mean Test Accuracy</text>
+<line x1="500" y1="570" x2="1190" y2="570" stroke="#333333" stroke-width="2"/>
+<line x1="500" y1="70" x2="500" y2="570" stroke="#333333" stroke-width="2"/>
+<rect x="500.0" y="76.5" width="537.9" height="37.0" fill="#2a6f97" rx="6"/>
+<text x="482.0" y="95.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#222222">
+<tspan x="482.0" dy="0">Standard MLP no trust</tspan>
+</text>
+<text x="1047.9" y="100.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#222222">0.8808</text>
+<rect x="500.0" y="126.5" width="537.9" height="37.0" fill="#4d908e" rx="6"/>
+<text x="482.0" y="145.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#222222">
+<tspan x="482.0" dy="0">Standard MLP + Kalman h800/L2</tspan>
+</text>
+<text x="1047.9" y="150.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#222222">0.8808</text>
+<rect x="500.0" y="176.5" width="527.3" height="37.0" fill="#bc4749" rx="6"/>
+<text x="482.0" y="195.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#222222">
+<tspan x="482.0" dy="0">Standard MLP no trust h800/L2</tspan>
+</text>
+<text x="1037.3" y="200.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#222222">0.8801</text>
+<rect x="500.0" y="226.5" width="491.3" height="37.0" fill="#7a3e9d" rx="6"/>
+<text x="482.0" y="245.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#222222">
+<tspan x="482.0" dy="0">Standard MLP + Kalman</tspan>
+</text>
+<text x="1001.3" y="250.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#222222">0.8777</text>
+<rect x="500.0" y="276.5" width="478.1" height="37.0" fill="#2a6f97" rx="6"/>
+<text x="482.0" y="295.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#222222">
+<tspan x="482.0" dy="0">BBB no trust</tspan>
+</text>
+<text x="988.1" y="300.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#222222">0.8769</text>
+<rect x="500.0" y="326.5" width="469.5" height="37.0" fill="#4d908e" rx="6"/>
+<text x="482.0" y="345.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#222222">
+<tspan x="482.0" dy="0">BBB + Kalman</tspan>
+</text>
+<text x="979.5" y="350.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#222222">0.8763</text>
+<rect x="500.0" y="376.5" width="466.4" height="37.0" fill="#bc4749" rx="6"/>
+<text x="482.0" y="395.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#222222">
+<tspan x="482.0" dy="0">BBB + Dropout no trust</tspan>
+</text>
+<text x="976.4" y="400.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#222222">0.8761</text>
+<rect x="500.0" y="426.5" width="452.2" height="37.0" fill="#7a3e9d" rx="6"/>
+<text x="482.0" y="445.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#222222">
+<tspan x="482.0" dy="0">BBB + Dropout + Kalman</tspan>
+</text>
+<text x="962.2" y="450.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#222222">0.8752</text>
+<rect x="500.0" y="476.5" width="338.7" height="37.0" fill="#2a6f97" rx="6"/>
+<text x="482.0" y="495.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#222222">
+<tspan x="482.0" dy="0">Dropout MLP no trust</tspan>
+</text>
+<text x="848.7" y="500.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#222222">0.8677</text>
+<rect x="500.0" y="526.5" width="304.2" height="37.0" fill="#4d908e" rx="6"/>
+<text x="482.0" y="545.0" text-anchor="end" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#222222">
+<tspan x="482.0" dy="0">Dropout MLP + Kalman</tspan>
+</text>
+<text x="814.2" y="550.0" text-anchor="start" font-family="Helvetica, Arial, sans-serif" font-size="13" font-weight="700" fill="#222222">0.8654</text>
+<line x1="500.0" y1="570" x2="500.0" y2="576" stroke="#333333" stroke-width="1"/>
+<text x="500.0" y="594" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#444444">0.845</text>
+<line x1="500.0" y1="70" x2="500.0" y2="570" stroke="#e7e1d7" stroke-width="1"/>
+<line x1="672.5" y1="570" x2="672.5" y2="576" stroke="#333333" stroke-width="1"/>
+<text x="672.5" y="594" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#444444">0.857</text>
+<line x1="672.5" y1="70" x2="672.5" y2="570" stroke="#e7e1d7" stroke-width="1"/>
+<line x1="845.0" y1="570" x2="845.0" y2="576" stroke="#333333" stroke-width="1"/>
+<text x="845.0" y="594" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#444444">0.868</text>
+<line x1="845.0" y1="70" x2="845.0" y2="570" stroke="#e7e1d7" stroke-width="1"/>
+<line x1="1017.5" y1="570" x2="1017.5" y2="576" stroke="#333333" stroke-width="1"/>
+<text x="1017.5" y="594" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#444444">0.879</text>
+<line x1="1017.5" y1="70" x2="1017.5" y2="570" stroke="#e7e1d7" stroke-width="1"/>
+<line x1="1190.0" y1="570" x2="1190.0" y2="576" stroke="#333333" stroke-width="1"/>
+<text x="1190.0" y="594" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#444444">0.891</text>
+</svg>

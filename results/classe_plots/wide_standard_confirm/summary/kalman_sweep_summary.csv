@@ -1,0 +1,3 @@
+group,display,runs,mean_accuracy,std_accuracy,mean_error,std_error,best_accuracy,worst_accuracy,seeds
+standard_trust_kalmanLayer_beta0.95_Q0.0001_P1.0_R1.0_arch_h800_l2,Standard MLP + Kalman h800/L2,5,0.9799599999999999,0.001924318061028368,0.020040000000000013,0.001924318061028368,0.9829,0.9776,"0,1,2,3,4"
+standard_trust_none_arch_h800_l2,Standard MLP no trust h800/L2,5,0.97992,0.0018212632978238108,0.020080000000000008,0.0018212632978238108,0.9824,0.9783,"0,1,2,3,4"

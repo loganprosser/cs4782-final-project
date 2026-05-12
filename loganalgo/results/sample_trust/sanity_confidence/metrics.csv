@@ -1,2 +1,0 @@
-epoch,train_loss,train_unweighted_loss,train_accuracy,trust_mean,trust_std,trust_min,trust_max,frac_at_min_trust,frac_at_max_trust,mean_confidence,mean_entropy,mean_loss,test_loss,test_accuracy,sample_trust_mode,batch_size,learning_rate,seed,model,run_name
-1,2.2675115937772006,2.2739500543345574,0.22608695652173913,0.10397804714739323,0.008045252703595906,0.08607491292059422,0.11762145441025496,0.0,0.0,0.10397804714739323,2.298937112092972,2.2673234045505524,2.23969766497612,0.31640625,confidence,32,0.001,0,mlp,sanity_confidence
