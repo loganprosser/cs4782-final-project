@@ -1,39 +1,32 @@
 # Bayes by Backprop Reimplementation
 
-CS 4782 final project repository for reproducing and extending Bayes by Backprop from *Weight Uncertainty in Neural Networks*.
+## 1. Introduction
 
-This project implements Bayesian neural network layers trained with the Bayes by Backprop objective, compares them against standard and dropout baselines on MNIST-style classification, and includes extensions around update trust, Kalman-style optimizer behavior, uncertainty shift, and noisy-label experiments.
+This repo is a CS 4782 final project that re-implements and extends the Bayes by Backprop experiments from Blundell et al., *Weight Uncertainty in Neural Networks*.
 
-## Repository Layout
+The paper's main contribution is a variational Bayesian training method for neural networks that learns a distribution over weights, enabling uncertainty-aware prediction while remaining competitive with dropout-style regularization.
 
-This repository is organized around the course-required submission structure:
+## 2. Chosen Result
 
-```text
-.
-├── README.md
-├── LICENSE
-├── .gitignore
-├── code/
-├── data/
-├── results/
-├── poster/
-└── report/
-```
+We aimed to reproduce the MNIST classification comparison from the paper's Table 1 and Figure 2, where Bayes by Backprop with a scale-mixture prior is compared against vanilla SGD and dropout.
 
-Important subdirectories:
+![Paper-vs-ours MNIST comparison](results/reproduction/figures/mnist_paper_vs_ours_table.png)
 
-- `code/bayes_by_backprop/`: core implementation, including Bayesian layers, models, losses, evaluation helpers, update-trust logic, and utilities.
-- `code/experiments/`: training scripts, benchmark scripts, reproduction scripts, and shell runners.
-- `code/evaluation/`: plotting, summary, audit, and final-figure generation scripts.
-- `code/kalman_trust/`: Kalman/trust-mechanism extensions and earlier exploratory implementations.
-- `code/tests/`: focused unit tests for update-trust behavior.
-- `results/bayes_by_backprop/`: preserved outputs from the core implementation.
-- `results/reproduction/`: final reproduction CSVs, figures, logs, and summaries.
-- `results/figures_final/`: final poster/report-ready plots.
-- `poster/`: poster PDF candidate.
-- `report/`: report PDF candidate and related notes/references.
+## 3. GitHub Contents
 
-## Setup
+`code/` contains the Bayes by Backprop implementation, training scripts, evaluation scripts, and Kalman/trust extensions; `results/` stores generated CSVs, plots, and summaries; `report/` and `poster/` contain final writeups.
+
+Core files: `code/bayes_by_backprop/` for models/layers/losses, `code/experiments/` for runnable experiments, `code/evaluation/` for plots, and `results/reproduction/` for final reproduction artifacts.
+
+## 4. Re-implementation Details
+
+We implemented a two-hidden-layer 400-unit MNIST MLP in four variants: standard MLP, dropout MLP, Bayes by Backprop with BayesianLinear layers and a scale-mixture prior, and Bayes by Backprop + dropout.
+
+Experiments use PyTorch/torchvision, Adam, batch size 128, a 54k/6k train/validation split, MNIST test accuracy/error, runtime, and model-parameter memory; our main modification is a shorter 20-epoch training budget plus exploratory uncertainty/trust extensions.
+
+## 5. Reproduction Steps
+
+Create the environment and install dependencies:
 
 ```bash
 python3 -m venv .venv
@@ -41,17 +34,14 @@ source .venv/bin/activate
 pip install -r code/requirements.txt
 ```
 
-The main dependencies are PyTorch, torchvision, numpy, pandas, and matplotlib.
-
-## Main Experiments
-
-The core MNIST training entry point is:
+Run the main reproduction and regenerate plots:
 
 ```bash
-python code/experiments/train_mnist.py --model bayesian --epochs 10 --mc-samples 10
+python code/experiments/run_missing_reproduction_experiments.py --epochs 20 --batch-size 128 --lr 1e-3 --seeds 0 --device auto
+python code/evaluation/make_reproduction_plots.py
 ```
 
-Useful baseline and extension commands:
+Single-model examples:
 
 ```bash
 python code/experiments/train_mnist.py --model standard --epochs 10
@@ -60,88 +50,35 @@ python code/experiments/train_mnist.py --model bayesian --epochs 10 --mc-samples
 python code/experiments/train_mnist.py --model bayesian --bayesian-dropout 0.1 --epochs 10 --mc-samples 10
 ```
 
-Regression uncertainty experiment:
+The code runs on CPU, but a CUDA GPU is recommended for faster Bayesian runs; in our 20-epoch CPU-style run, Bayes by Backprop took about 482 seconds versus about 70-72 seconds for deterministic/dropout baselines.
 
-```bash
-python code/experiments/train_regression.py --model bayesian --epochs 2000 --mc-samples 100
-```
+## 6. Results/Insights
 
-By default, new core outputs are written under `results/bayes_by_backprop/`.
+| Method | Paper test error | Our best test error |
+| --- | ---: | ---: |
+| Vanilla SGD / Standard MLP | 1.83% | 1.80% |
+| Dropout | 1.51% | 1.54% |
+| Bayes by Backprop | 1.36% | 1.74% |
+| Bayes by Backprop + Dropout | N/A | 1.68% |
 
-## Reproduction Outputs
+![MNIST reproduction dashboard](results/reproduction/figures/reproduction_dashboard.png)
 
-The final reproduction artifacts are preserved under `results/reproduction/`, including:
+Bayes by Backprop qualitatively reproduced the paper's core claim by staying competitive with dropout on MNIST, but exact matching is limited by our shorter training budget and smaller hyperparameter search.
 
-- `training_curves.csv`
-- `final_metrics.csv`
-- `resource_metrics.csv`
-- `runtime_summary.csv`
-- `memory_summary.csv`
-- `paper_reproduction_summary.csv`
-- `reproduction_summary.md`
-- `figure_captions.md`
-- `figures/*.png`
+## 7. Conclusion
 
-The reproduction runner is:
+The re-implementation confirms the main lesson of the paper: Bayesian weight uncertainty can produce dropout-competitive MNIST performance, though it costs substantially more runtime and memory because each Bayesian layer stores and samples posterior parameters.
 
-```bash
-python code/experiments/run_missing_reproduction_experiments.py --epochs 20 --batch-size 128 --lr 1e-3 --seeds 0 --device auto
-```
+Our extension with dropout inside the Bayesian model improved over plain Bayes by Backprop in this run, but did not beat dropout alone, suggesting the accuracy-cost tradeoff remains the central practical tension.
 
-The reproduction plot/report generator is:
+## 8. References
 
-```bash
-python code/evaluation/make_reproduction_plots.py
-```
+- Charles Blundell, Julien Cornebise, Koray Kavukcuoglu, and Daan Wierstra. *Weight Uncertainty in Neural Networks*. ICML 2015.
+- Paper copy used for this project: `report/references/weight_uncertainty_in_neural_networks.pdf`.
+- PyTorch and torchvision documentation for model implementation and MNIST loading.
 
-## Results And Large Files
+## 9. Acknowledgements
 
-Small summaries, figures, tables, and markdown reports are kept in `results/`.
+This project was completed for Cornell CS 4782 Deep Learning, Spring 2026.
 
-Large or regenerable files are intentionally ignored by git:
-
-- raw MNIST/Fashion-MNIST downloads in `data/`
-- model checkpoints and weights such as `*.pt`, `*.pth`, and `*.ckpt`
-- checkpoint directories under `results/`
-- bulky archived training dumps
-- virtual environments and generated caches
-
-This keeps the GitHub submission small while preserving local work on disk.
-
-## Verification
-
-After reorganizing the repository, these checks were run:
-
-```bash
-python3 -m compileall -q code
-```
-
-Result: passed. This verifies that the Python files under `code/` are syntactically valid after the directory move and import-path cleanup.
-
-The unit test suite was also attempted:
-
-```bash
-python3 -m unittest discover -s code/tests
-```
-
-Result in the current shell: failed because PyTorch was not installed in that interpreter:
-
-```text
-ModuleNotFoundError: No module named 'torch'
-```
-
-This is an environment/dependency issue, not a syntax failure from the reorganization. After installing dependencies, rerun:
-
-```bash
-source .venv/bin/activate
-pip install -r code/requirements.txt
-python3 -m unittest discover -s code/tests
-```
-
-Ignore rules were also spot-checked with `git check-ignore` to confirm that raw datasets, checkpoints, and bulky archived runs are excluded from the GitHub submission.
-
-## Notes On Reorganization
-
-The most complete implementation originally lived in `bayes-by-backprop-reimplementation/`. Its core code was moved into `code/bayes_by_backprop/`, runnable scripts were moved into `code/experiments/`, plotting and summary utilities were moved into `code/evaluation/`, and related Kalman/trust work was moved into `code/kalman_trust/`.
-
-The old local virtual environment, bytecode caches, macOS metadata, generated plotting caches, and LaTeX auxiliary files were removed from the working tree.
+Thanks to the course staff and project reviewers for the reproduction-focused assignment structure and feedback context.
